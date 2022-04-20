@@ -95,7 +95,7 @@ export default function Computer(props) {
             />
             <OrbitControls enableZoom={true} target={[0, 1, 0]} />
             <Suspense fallback={null}>
-                <Test castShadow receiveShadow scale={2} />
+                <Test castShadow receiveShadow scale={1.5} />
             </Suspense>
 
             <EffectComposer>
