@@ -1,17 +1,20 @@
 import Computer from "../components/common/computer";
 import { BottomBar } from "../components/common/bottom";
-export default function Disco() {
+export default function Home() {
     return (
         <div className="w-screen bg-black">
-            <div className="m-auto text-3xl font-bold w-fit back bg-white text-slate-900 flex flex-row px-8">
+            <div className=" hidden bsm:flex m-auto text-3xl font-bold max-w-fit back bg-white text-slate-900 flex-row px-8">
                 <h1 className="p-8 hover:bg-black hover:text-white">CYP</h1>
                 <h1 className="p-8 hover:bg-black hover:text-white">BLOG</h1>
                 <h1 className="p-8 hover:bg-black hover:text-white">PROJECT</h1>
                 <h1 className="p-8 hover:bg-black hover:text-white">ABOUT</h1>
             </div>
-            <div className="text-3xl bg-black text-white flex flex-row  h-screen">
-                <Computer className="w-1/4" />
-                <div className="m-auto max-w-prose w-3/4 mx-16 p-8">
+
+            <div className="text-3xl bg-black text-white flex flex-col lg:flex-row min-h-screen">
+                <div className=" m-auto w-full lg:w-1/2 h-[50vh] lg:h-screen">
+                    <Computer className="" />
+                </div>
+                <div className="m-auto max-w-prose w-full lg:w-1/4 p-8">
                     <h1 className="text-4xl font-extrabold py-8">"hello"</h1>
                     <h3>
                         This website is verry work in progress, don't expect
