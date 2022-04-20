@@ -138,24 +138,24 @@
     ],
     "images": [
         {
-            "mimeType": "image/jpeg",
+            "mimeType": "image/webp",
             "name": "TerminalMaterial_emissive",
-            "uri": "texture/TerminalMaterial_emissive.jpg"
+            "uri": "texture/TerminalMaterial_emissive.webp"
         },
         {
-            "mimeType": "image/jpeg",
+            "mimeType": "image/webp",
             "name": "TerminalMaterial_normal",
-            "uri": "texture/TerminalMaterial_normal.jpg"
+            "uri": "texture/TerminalMaterial_normal.webp"
         },
         {
-            "mimeType": "image/jpeg",
+            "mimeType": "image/webp",
             "name": "TerminalMaterial_metallicRoughness",
-            "uri": "texture/TerminalMaterial_metallicRoughness.jpg"
+            "uri": "texture/TerminalMaterial_metallicRoughness.webp"
         },
         {
-            "mimeType": "image/jpeg",
+            "mimeType": "image/webp",
             "name": "TerminalMaterial_baseColor",
-            "uri": "texture/TerminalMaterial_baseColor.jpg"
+            "uri": "texture/TerminalMaterial_baseColor.webp"
         }
     ],
     "accessors": [

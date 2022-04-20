@@ -12,7 +12,7 @@ import {
 import { OrbitControls } from "@react-three/drei";
 
 function Test(props) {
-    const { scene } = useLoader(GLTFLoader, "/computer/computer.glb");
+    const { scene } = useLoader(GLTFLoader, "./computer/computer.gltf");
 
     scene.traverse(function (node) {
         if (node.isMesh) {
@@ -82,8 +82,8 @@ export default function Computer(props) {
             dpr={[1, 1]}
             onCreated={(gl) => {}}
             antialias={true}
-            {...props}
             ref={ref}
+            {...props}
         >
             <WindowResizeRescaler dref={ref} />
             <ambientLight intensity={0.8} />
