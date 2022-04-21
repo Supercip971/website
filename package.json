@@ -5,15 +5,18 @@
   "scripts": {
     "dev": "next dev",
     "build": "next build",
+    "export": "next export",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "log": "log-server -p 3001 -d log/"
   },
   "dependencies": {
     "@react-three/drei": "^9.4.3",
     "@react-three/fiber": "^8.0.11",
     "@react-three/postprocessing": "^2.3.2",
     "expo-asset": "^8.4.6",
-    "next": "12.1.5",
+    "log-server": "^1.0.1",
+    "next": "^12.1.5",
     "react": "18.0.0",
     "react-dom": "18.0.0",
     "three": "^0.139.2"
