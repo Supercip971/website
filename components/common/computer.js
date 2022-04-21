@@ -1,13 +1,14 @@
-import React, { Suspense, useRef } from "react";
-import { Canvas, useLoader, useFrame } from "@react-three/fiber";
+import React, { Suspense, useEffect, useMemo, useRef } from "react";
+import { Canvas, useLoader, useFrame, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
+import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
+import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
+import { BrightnessContrastShader } from "three/examples/jsm/shaders/BrightnessContrastShader";
 
-import {
-    EffectComposer,
-    BrightnessContrast,
-    HueSaturation,
-    SMAA,
-} from "@react-three/postprocessing";
+import { HueSaturationShader } from "three/examples/jsm/shaders/HueSaturationShader";
+
+import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
+import * as THREE from "three";
 
 import { OrbitControls } from "@react-three/drei";
 
@@ -59,6 +60,7 @@ const WindowResizeRescaler = (props) => {
         }
 
         state.camera.aspect = ref.current.width / ref.current.height;
+
         state.camera.fov =
             (360 / Math.PI) *
             Math.atan(tanFOV / (ref.current.width / ref.current.height));
@@ -67,6 +69,60 @@ const WindowResizeRescaler = (props) => {
     });
 };
 
+function Effect() {
+    let { gl, scene, camera, size } = useThree();
+
+    const [base, final] = useMemo(() => {
+        const renderScene = new RenderPass(scene, camera);
+        const offscreenTarget = new THREE.WebGLRenderTarget(
+            size.width,
+            size.height
+        );
+
+        camera.aspect = size.x / size.y;
+
+        camera.fov = (360 / Math.PI) * Math.atan(90 / (size.x / size.y));
+        camera.updateProjectionMatrix();
+        const comp = new EffectComposer(gl, offscreenTarget);
+        comp.renderToScreen = false;
+        comp.addPass(renderScene);
+        const finalComposer = new EffectComposer(gl);
+
+        const hss = new ShaderPass(HueSaturationShader);
+        hss.material.uniforms["saturation"].value = -1;
+        const bcs = new ShaderPass(BrightnessContrastShader);
+        bcs.material.uniforms["contrast"].value = 0.99;
+
+        finalComposer.addPass(renderScene);
+
+        finalComposer.addPass(hss);
+        finalComposer.addPass(bcs);
+
+        return [comp, finalComposer];
+    }, []);
+
+    useEffect(() => {
+        base.setSize(size.width, size.height);
+        final.setSize(size.width, size.height);
+    }, [base, final, size]);
+
+    useFrame(() => {
+        base.render();
+        final.render();
+    }, 1);
+
+    return null;
+}
+/*
+            <EffectComposer multisampling={16}>
+                <HueSaturation saturation={-1.0} />
+                <BrightnessContrast contrast={0.99} />
+            </EffectComposer>
+
+            <EffectComposer>
+                <SMAA />
+            </EffectComposer>
+*/
 export default function Computer(props) {
     const ref = useRef(null);
     return (
@@ -75,13 +131,8 @@ export default function Computer(props) {
             camera={{
                 fov: 90,
                 position: [0, 1.5, 4],
-                view: {
-                    offsetY: 500,
-                },
             }}
-            dpr={[1, 1]}
             onCreated={(gl) => {}}
-            antialias={true}
             ref={ref}
             {...props}
         >
@@ -97,13 +148,7 @@ export default function Computer(props) {
             <Suspense fallback={null}>
                 <Test castShadow receiveShadow scale={1.5} />
             </Suspense>
-
-            <EffectComposer>
-                <HueSaturation saturation={-1.0} />
-
-                <BrightnessContrast contrast={0.99} />
-                <SMAA />
-            </EffectComposer>
+            <Effect />
         </Canvas>
     );
 }
