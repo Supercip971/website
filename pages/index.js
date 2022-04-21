@@ -17,7 +17,7 @@ export default function Home() {
                 <div className="m-auto max-w-prose w-full lg:w-1/4 p-8">
                     <h1 className="text-4xl font-extrabold py-8">"hello"</h1>
                     <h3>
-                        This website is verry work in progress, don't expect
+                        This website is verry work in progress ! don't expect
                         anything interesting/responsive here... Lorem ipsum odor
                         amet, consectetuer adipiscing elit. Ac purus in massa
                         egestas mollis varius; dignissim elementum. Mollis
