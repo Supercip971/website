@@ -140,22 +140,22 @@
         {
             "mimeType": "image/webp",
             "name": "TerminalMaterial_emissive",
-            "uri": "texture/TerminalMaterial_emissive.webp"
+            "uri": "texture/TerminalMaterial_emissive_lower.webp"
         },
         {
             "mimeType": "image/webp",
             "name": "TerminalMaterial_normal",
-            "uri": "texture/TerminalMaterial_normal.webp"
+            "uri": "texture/TerminalMaterial_normal_lower.webp"
         },
         {
             "mimeType": "image/webp",
             "name": "TerminalMaterial_metallicRoughness",
-            "uri": "texture/TerminalMaterial_metallicRoughness.webp"
+            "uri": "texture/TerminalMaterial_metallicRoughness_lower.webp"
         },
         {
             "mimeType": "image/webp",
             "name": "TerminalMaterial_baseColor",
-            "uri": "texture/TerminalMaterial_baseColor.webp"
+            "uri": "texture/TerminalMaterial_baseColor_lower.webp"
         }
     ],
     "accessors": [
