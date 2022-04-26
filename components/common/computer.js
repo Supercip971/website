@@ -13,7 +13,7 @@ import * as THREE from "three";
 import { OrbitControls } from "@react-three/drei";
 
 function Test(props) {
-    const { scene } = useLoader(GLTFLoader, "./computer/computer.gltf");
+    const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
 
     scene.traverse(function (node) {
         if (node.isMesh) {
