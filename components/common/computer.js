@@ -10,7 +10,14 @@ import { HueSaturationShader } from "three/examples/jsm/shaders/HueSaturationSha
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import * as THREE from "three";
 
-import { OrbitControls } from "@react-three/drei";
+import {
+    FirstPersonControls,
+    Html,
+    OrbitControls,
+    useProgress,
+} from "@react-three/drei";
+import { LoadingManager } from "three";
+import { TextGeometry } from "three";
 
 function Test(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
@@ -21,34 +28,11 @@ function Test(props) {
             node.receiveShadow = true;
         }
     });
-
     scene.castShadow = true;
+
     scene.receiveShadow = true;
     return <primitive {...props} object={scene}></primitive>;
 }
-/*
-<directionalLight
-                position={[20, 10, 18]}
-                castShadow
-                shadowMapWidth={2048}
-                shadowMapHeight={2048}
-                intensity={1}
-                color={[0 / 255, (127 - 22) / 255, 255 / 255]}
-            />  <BrightnessContrast
-                    contrast={1.0}
-                    brightness={0.3}
-                ></BrightnessContrast>
-     <ColorDepth bits={1}></ColorDepth>
-<directionalLight
-                position={[-20, 10, 10]}
-                castShadow
-                shadowMapWidth={2048}
-                shadowMapHeight={2048}
-                intensity={0.7}
-                color={[(255 - 12) / 255, 0x7f / 255, 24 / 255]}
-            />
-
-*/
 
 const WindowResizeRescaler = (props) => {
     var tanFOV = Math.tan(((Math.PI / 180) * 90) / 2);
@@ -123,6 +107,17 @@ function Effect() {
                 <SMAA />
             </EffectComposer>
 */
+
+function Loader() {
+    const { progress } = useProgress();
+    var nprogress = Math.floor(progress);
+
+    return (
+        <Html center>
+            <div className="font-bold">{nprogress}% loading...</div>
+        </Html>
+    );
+}
 export default function Computer(props) {
     const ref = useRef(null);
     return (
@@ -145,7 +140,7 @@ export default function Computer(props) {
                 color={[1, 1, 1]}
             />
             <OrbitControls enableZoom={true} target={[0, 1, 0]} />
-            <Suspense fallback={null}>
+            <Suspense fallback={<Loader />}>
                 <Test castShadow receiveShadow scale={1.5} />
             </Suspense>
             <Effect />

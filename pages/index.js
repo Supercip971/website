@@ -1,5 +1,7 @@
 import Computer from "../components/common/computer";
 import { BottomBar } from "../components/common/bottom";
+import { TopBar } from "../components/common/top";
+
 import Image from "next/image";
 import Head from "next/head";
 export default function Home() {
@@ -12,13 +14,7 @@ export default function Home() {
                     content="initial-scale=1.0, width=device-width"
                 />
             </Head>
-            <div className=" hidden bsm:flex m-auto text-2xl font-bold max-w-fit back bg-white text-slate-900 flex-row px-8">
-                <h1 className="p-8 hover:bg-black hover:text-white">CYP</h1>
-                <h1 className="p-8 hover:bg-black hover:text-white">BLOG</h1>
-                <h1 className="p-8 hover:bg-black hover:text-white">PROJECT</h1>
-                <h1 className="p-8 hover:bg-black hover:text-white">ABOUT</h1>
-            </div>
-
+            <TopBar />
             <div className=" bg-black text-white flex flex-col lg:flex-row min-h-screen">
                 <div className=" m-auto w-full lg:w-1/2 h-[50vh] lg:h-screen">
                     <Computer className="" />
@@ -38,9 +34,9 @@ export default function Home() {
                     </h3>
                 </div>
             </div>
-            <div className=" bg-white flex flex-col-reverse lg:flex-row py-16 w-full">
-                <div className=" m-auto  text-black bg-white p-8 w-1/2 ">
-                    <div className="max-w-prose m-auto">
+            <div className=" bg-white flex flex-col-reverse lg:flex-row py-16 w-full min-h-screen">
+                <div className=" m-auto  text-black bg-white w-1/2 max-w-prose ">
+                    <div className="w-full">
                         <h1 className="py-8 font-bold text-2xl">whoami</h1>
                         <h3 className="text-xl">
                             Hey ! I'm supercyp, I am 15 years old C/C++ french
@@ -56,7 +52,7 @@ export default function Home() {
                         </h3>
                     </div>
                 </div>
-                <div className=" m-auto   grayscale ease-in-out duration-700 hover:grayscale-0 max-w-prose w-1/3 lg:w-1/4 hover:lg:w-[28%] aspect-square p-8 lg:p-1  bg-white">
+                <div className=" m-auto  grayscale ease-in-out duration-700 hover:grayscale-0 max-w-prose w-1/3 lg:w-1/6  aspect-square py-8 lg:p-1  bg-white">
                     <div className="rounded-full border-8 border-black invert contrast-200 hover:contrast-100 hover:invert-0 hover:shadow-md shadow-black ease-in-out duration-700">
                         <Image
                             layout="responsive"

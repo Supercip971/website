@@ -4,11 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev2": "node ./pages/server.js",
+    "build2": "next build",
     "build": "next build",
     "export": "next export",
     "start": "next start",
-    "lint": "next lint",
-    "log": "log-server -p 3001 -d log/"
+    "lint": "next lint"
   },
   "dependencies": {
     "@react-three/drei": "^9.4.3",
