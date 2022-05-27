@@ -18,6 +18,7 @@ import {
 } from "@react-three/drei";
 import { LoadingManager } from "three";
 import { TextGeometry } from "three";
+import { Vector3 } from "three";
 
 function Test(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
@@ -52,9 +53,44 @@ const WindowResizeRescaler = (props) => {
         // FIXME: only do this when the window resize
     });
 };
-
+let original_camera_pos = new Vector3(0, 1.5, 4);
+let stop_animation = 0;
 function Effect() {
     let { gl, scene, camera, size } = useThree();
+    let framesec = 0;
+
+    useFrame((state, delta) => {
+        framesec += delta;
+        const t = new Vector3(
+            Math.sin(-framesec * 0.25) * 0.8,
+            Math.cos(framesec * 0.05) * 0.1,
+            0
+        );
+
+        if (stop_animation <= 0.1) {
+            console.log(camera.position, t);
+            camera.position.set(
+                t.x + original_camera_pos.x,
+                t.y + original_camera_pos.y,
+                t.z + original_camera_pos.z
+            );
+            camera.updateMatrix();
+        } else {
+            stop_animation -= delta;
+            if (stop_animation < 0.1) {
+                let r = new Vector3(
+                    camera.position.x - t.x,
+                    camera.position.y - t.y,
+                    camera.position.z - t.z
+                );
+                original_camera_pos = r;
+                console.log("stopin'");
+            }
+        }
+
+        base.render(camera);
+        final.render(camera);
+    }, 1);
 
     const [base, final] = useMemo(() => {
         const renderScene = new RenderPass(scene, camera);
@@ -62,8 +98,8 @@ function Effect() {
             size.width,
             size.height
         );
-
         camera.aspect = size.x / size.y;
+        console.log("UP");
 
         camera.fov = (360 / Math.PI) * Math.atan(90 / (size.x / size.y));
         camera.updateProjectionMatrix();
@@ -83,18 +119,18 @@ function Effect() {
         finalComposer.addPass(bcs);
 
         return [comp, finalComposer];
-    }, []);
+    }, [camera, original_camera_pos]);
 
     useEffect(() => {
+        camera.position.set(
+            original_camera_pos.x,
+            original_camera_pos.y,
+            original_camera_pos.z
+        );
+        camera.updateProjectionMatrix();
         base.setSize(size.width, size.height);
         final.setSize(size.width, size.height);
     }, [base, final, size]);
-
-    useFrame(() => {
-        base.render();
-        final.render();
-    }, 1);
-
     return null;
 }
 /*
@@ -120,15 +156,22 @@ function Loader() {
 }
 export default function Computer(props) {
     const ref = useRef(null);
+    let stop = () => {
+        stop_animation = 5;
+    };
     return (
         <Canvas
             shadows={true}
-            camera={{
-                fov: 90,
-                position: [0, 1.5, 4],
-            }}
+            camera={new THREE.PerspectiveCamera(90, 1920 / 1080, 0.1, 1000)}
             onCreated={(gl) => {}}
             ref={ref}
+            onMouseDown={stop}
+            onScroll={stop}
+            onDragEnter={stop}
+            onWheel={stop}
+            onDragStart={stop}
+            onDrag={stop}
+            onTouchMove={stop}
             {...props}
         >
             <WindowResizeRescaler dref={ref} />
