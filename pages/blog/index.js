@@ -58,13 +58,13 @@ export default function PostList({ posts }) {
     );
 }
 export async function getStaticProps() {
-    const files = fs.readdirSync("public/blog/");
+    const files = fs.readdirSync("public/post/");
     const posts = files
         .filter((file) => file.endsWith(".mdx"))
         .map((fileName) => {
             const raw = fileName.replace(".mdx", "");
             const readFile = fs.readFileSync(
-                `public/blog/${fileName}`,
+                `public/post/${fileName}`,
                 "utf-8"
             );
             const { data: frontmatter } = matter(readFile);
