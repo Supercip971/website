@@ -2,7 +2,6 @@ import fs from "fs";
 import matter from "gray-matter";
 
 import path from "path";
-import Image from "next/image";
 import { serialize } from "next-mdx-remote/serialize";
 import Link from "next/link";
 import { BottomBar } from "../../components/common/bottom";

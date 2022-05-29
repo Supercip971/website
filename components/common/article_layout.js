@@ -1,7 +1,6 @@
 import { BottomBar } from "../components/common/bottom";
 import { TopBar } from "../components/common/top";
 
-import Image from "next/image";
 import Head from "next/head";
 export default function Blog({ children }) {
     return (
