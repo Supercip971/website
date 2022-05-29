@@ -123,6 +123,21 @@ export default function Post({ front, slug, mdx, source }) {
         </div>
     );
 }
+export async function getStaticPaths() {
+    const files = fs.readdirSync("public/blog/");
+    const paths = files
+        .filter((file) => file.endsWith(".mdx"))
+        .map((filename) => ({
+            params: {
+                slug: filename.replace(".mdx", ".html"),
+            },
+        }));
+    return {
+        paths,
+        fallback: false,
+    };
+}
+
 export async function getStaticProps({ params }) {
     const markdownWithMeta = fs.readFileSync(
         path.join("public/blog/", params.slug + ".mdx"),
@@ -142,19 +157,5 @@ export async function getStaticProps({ params }) {
             mdx: mdxSource,
             source: content,
         },
-    };
-}
-export async function getStaticPaths() {
-    const files = fs.readdirSync("public/blog/");
-    const paths = files
-        .filter((file) => file.endsWith(".mdx"))
-        .map((filename) => ({
-            params: {
-                slug: filename.replace(".mdx", ""),
-            },
-        }));
-    return {
-        paths,
-        fallback: false,
     };
 }
