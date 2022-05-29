@@ -32,7 +32,7 @@ export default function PostList({ posts }) {
 
             <div className=" p-4 md:p-0 bg-white min-h-[100vh] w-full m-auto  ">
                 {posts.map(({ slug, front }) => (
-                    <Link href={"/blog/" + slug + ".html"}>
+                    <Link href={"/blog/" + slug + ".html"} key={slug}>
                         <div className="m-auto border overflow-hidden flex  bg-black text-white flex-col max-w-prose mb-8 cursor-pointer">
                             <img
                                 layout="responsive"
