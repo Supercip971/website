@@ -123,7 +123,7 @@ export default function Post({ front, slug, mdx, source }) {
         </div>
     );
 }
-export async function getStaticPaths() {
+export function getStaticPaths() {
     const files = fs.readdirSync("public/blog/");
     const paths = files
         .filter((file) => file.endsWith(".mdx"))
