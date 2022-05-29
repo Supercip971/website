@@ -39,7 +39,7 @@ export default function PostList({ posts }) {
                                 layout="responsive"
                                 width={1920}
                                 height={1080}
-                                src={"/" + front.socialImage}
+                                src={front.socialImage}
                             ></img>
                             <div className="flex md:flex-col flex-row flex-wrap">
                                 <h1 className=" text-2xl p-4  bg-black text-white mr-auto  font-extrabold">
