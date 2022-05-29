@@ -35,12 +35,12 @@ export default function PostList({ posts }) {
                 {posts.map(({ slug, front }) => (
                     <Link href={"/blog/" + slug} key={slug}>
                         <div className="m-auto border overflow-hidden flex  bg-black text-white flex-col max-w-prose mb-8 cursor-pointer">
-                            <Image
+                            <img
                                 layout="responsive"
                                 width={1920}
                                 height={1080}
                                 src={"/" + front.socialImage}
-                            ></Image>
+                            ></img>
                             <div className="flex md:flex-col flex-row flex-wrap">
                                 <h1 className=" text-2xl p-4  bg-black text-white mr-auto  font-extrabold">
                                     {front.title}

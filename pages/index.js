@@ -54,7 +54,7 @@ export default function Home() {
                 </div>
                 <div className=" m-auto  grayscale ease-in-out duration-700 hover:grayscale-0 max-w-prose w-1/3 lg:w-1/6  aspect-square py-8 lg:p-1  bg-white">
                     <div className="rounded-full border-8 border-black invert contrast-200 hover:contrast-100 hover:invert-0 hover:shadow-md shadow-black ease-in-out duration-700">
-                        <Image
+                        <img
                             layout="responsive"
                             width="512"
                             height="512"

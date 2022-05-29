@@ -27,7 +27,7 @@ function code_impl({ className, ...props }) {
     );
 }
 const components = {
-    img: (props) => <Image {...props} />,
+    img: (props) => <img {...props} />,
     h1: (props) => (
         <h1 className="text-4xl font-extrabold py-4 text-black" {...props}></h1>
     ),
