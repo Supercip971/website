@@ -147,11 +147,13 @@ export async function getStaticProps({ params }) {
 }
 export async function getStaticPaths() {
     const files = fs.readdirSync("public/blog/");
-    const paths = files.map((filename) => ({
-        params: {
-            slug: filename.replace(".mdx", ""),
-        },
-    }));
+    const paths = files
+        .filter((file) => file.endsWith(".mdx"))
+        .map((filename) => ({
+            params: {
+                slug: filename.replace(".mdx", ""),
+            },
+        }));
     return {
         paths,
         fallback: false,
