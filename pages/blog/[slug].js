@@ -129,7 +129,7 @@ export async function getStaticPaths() {
         .filter((file) => file.endsWith(".mdx"))
         .map((filename) => ({
             params: {
-                slug: filename.replace(".mdx", ".html"),
+                slug: filename.replace(".mdx", ""),
             },
         }));
     return {
