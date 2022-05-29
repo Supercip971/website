@@ -7,7 +7,7 @@ import { TopBar } from "../../components/common/top";
 
 import Head from "next/head";
 
-export default function Post({ posts }) {
+export default function PostList({ posts }) {
     return (
         <div className=" w-full bg-black">
             <Head>
