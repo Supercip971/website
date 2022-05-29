@@ -35,7 +35,7 @@ function Test(props) {
     return <primitive {...props} object={scene}></primitive>;
 }
 
-const WindowResizeRescaler = (props) => {
+export function WindowResizeRescaler(props) {
     var tanFOV = Math.tan(((Math.PI / 180) * 90) / 2);
     const ref = props.dref;
 
@@ -52,7 +52,8 @@ const WindowResizeRescaler = (props) => {
         state.camera.updateProjectionMatrix();
         // FIXME: only do this when the window resize
     });
-};
+}
+
 let original_camera_pos = new Vector3(0, 1.5, 4);
 let stop_animation = 0;
 function Effect() {
@@ -133,16 +134,6 @@ function Effect() {
     }, [base, final, size]);
     return null;
 }
-/*
-            <EffectComposer multisampling={16}>
-                <HueSaturation saturation={-1.0} />
-                <BrightnessContrast contrast={0.99} />
-            </EffectComposer>
-
-            <EffectComposer>
-                <SMAA />
-            </EffectComposer>
-*/
 
 function Loader() {
     const { progress } = useProgress();

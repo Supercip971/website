@@ -1,14 +1,18 @@
 import { useEffect, useRef } from "react";
-
+import Link from "next/link";
 function TopMenu(props) {
     return (
         <div {...props}>
-            <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
-                CYP
-            </h1>
-            <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
-                BLOG
-            </h1>
+            <Link href="/">
+                <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
+                    CYP
+                </h1>
+            </Link>
+            <Link href="/blog">
+                <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
+                    BLOG
+                </h1>
+            </Link>
             <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
                 PROJECT
             </h1>
