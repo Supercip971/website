@@ -32,13 +32,13 @@ export function TopBar(props) {
     };
     return (
         <div>
-            <div className="fixed z-[10] w-screen m-auto text-2xl font-bold hidden bsm:flex back bg-white/90 backdrop-blur-xl  text-slate-900 ">
+            <div className="fixed z-[10] w-screen m-auto text-2xl font-bold hidden bsm:flex back bg-white/90 backdrop-blur-lg  text-slate-900 ">
                 <TopMenu
                     className="w-fit m-auto bsm:flex flex-row "
                     ref={null}
                 />
             </div>
-            <div className="fixed z-[10] w-screen m-auto text-2xl font-bold flex flex-col bsm:hidden back bg-white/90 backdrop-blur-xl  text-slate-900 ">
+            <div className="fixed z-[10] w-screen m-auto text-2xl font-bold flex flex-col bsm:hidden back bg-white/90 backdrop-blur-lg  text-slate-900 ">
                 <div className="w-full m-auto flex flex-row ">
                     <h1 className="py-8 px-16 hover:bg-black hover:text-white cursor-pointer w-max">
                         CYP
