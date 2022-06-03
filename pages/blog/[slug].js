@@ -92,7 +92,7 @@ export default function Post({ front, slug, mdx, source }) {
                 <meta name="author" content="cyp" />
                 <meta property="og:type" content="article" />
                 <meta property="og:site_name" content="cyp" />
-                <meta property="og:image" content={front.socialImage} />
+                <meta property="og:image" content={"/" + front.socialImage} />
                 <meta property="og:description" content={front.description} />
                 <meta property="og:title" content={front.title} />
                 <meta
