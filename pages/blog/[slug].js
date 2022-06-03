@@ -104,7 +104,7 @@ export default function Post({ front, slug, mdx, source }) {
             <div
                 className=" bg-white text-white flex flex-col lg:flex-row min-h-[100vh] pt-32 py-8 w-full px-8 bg-fixed bg-cover bg-center"
                 style={{
-                    "background-image": "url(" + front.socialImage + ")",
+                    backgroundImage: "url('/" + front.socialImage + "')",
                 }}
             >
                 <div className="m-auto max-w-prose w-full  bg-black ">

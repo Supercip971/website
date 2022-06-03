@@ -40,7 +40,7 @@ export function WindowResizeRescaler(props) {
     const ref = props.dref;
 
     useFrame((state, delta) => {
-        if (!state || !ref) {
+        if (!state || !ref || !ref.current) {
             return;
         }
 
