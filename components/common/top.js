@@ -3,12 +3,12 @@ import Link from "next/link";
 function TopMenu(props) {
     return (
         <div {...props}>
-            <Link href="/">
+            <Link href="/" passHref>
                 <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
                     CYP
                 </h1>
             </Link>
-            <Link href="/blog">
+            <Link href="/blog" passHref>
                 <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
                     BLOG
                 </h1>
