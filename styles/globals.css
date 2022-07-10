@@ -10,17 +10,15 @@ body {
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
 
-@layer components
-{
+@layer components {
 a {
   color: inherit;
   @apply underline;
   @apply h-fit;
 }
-/* Ajoute une flèche après les liens */
+
 a::after {
         @apply no-underline;
         content: "↗";
-      }
-
+}
 }
