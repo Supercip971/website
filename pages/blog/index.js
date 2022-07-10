@@ -1,4 +1,4 @@
-import fs from "fs";
+import * as fs from "fs";
 import matter from "gray-matter";
 import Link from "next/link";
 import { BottomBar } from "../../components/common/bottom";
@@ -62,7 +62,8 @@ export default function PostList({ posts }) {
         </div>
     );
 }
-export async function getStaticProps() {
+
+export async function getAllBlogposts() {
     const files = fs.readdirSync("public/post/");
     const posts = files
         .filter((file) => file.endsWith(".mdx"))
@@ -80,12 +81,18 @@ export async function getStaticProps() {
             };
         });
 
+    return posts;
+}
+
+export async function getStaticProps() {
+    const posts = await getAllBlogposts();
     return {
         props: {
             posts,
         },
     };
 }
+
 /*
 export async function getStaticPaths() {
     const files = fs.readdirSync("public/blog");
