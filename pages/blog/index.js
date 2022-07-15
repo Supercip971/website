@@ -3,10 +3,12 @@ import matter from "gray-matter";
 import Link from "next/link";
 import { BottomBar } from "../../components/common/bottom";
 import { TopBar } from "../../components/common/top";
+import Image from "next/image";
 
 import Head from "next/head";
 
 export default function PostList({ posts }) {
+
     return (
         <div className=" w-full bg-black">
             <Head>
@@ -33,18 +35,13 @@ export default function PostList({ posts }) {
             <div className=" p-4 md:p-0 bg-white min-h-[100vh] w-full m-auto  ">
                 {posts.map(({ slug, front }) => (
                     <Link
-                        href={"/blog/[slug]"}
-                        as={"/blog/" + slug}
+                        href={"/blog/[slug].html"}
+                        as={"/blog/" + slug + ".html"}
                         key={slug}
                         passHref
                     >
                         <div className="m-auto border overflow-hidden flex  bg-black text-white flex-col max-w-prose mb-8 cursor-pointer">
-                            <img
-                                layout="responsive"
-                                width={1920}
-                                height={1080}
-                                src={front.socialImage}
-                            ></img>
+                            <Image src={"/" + front.socialImage} alt="blog post picture" layout="responsive" width={1920} height={1080} />
                             <div className="flex md:flex-col flex-row flex-wrap">
                                 <h1 className=" text-2xl p-4  bg-black text-white mr-auto  font-extrabold">
                                     {front.title}

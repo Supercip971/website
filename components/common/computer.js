@@ -11,13 +11,11 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import * as THREE from "three";
 
 import {
-    FirstPersonControls,
     Html,
     OrbitControls,
     useProgress,
 } from "@react-three/drei";
-import { LoadingManager } from "three";
-import { TextGeometry } from "three";
+
 import { Vector3 } from "three";
 
 function Test(props) {
@@ -29,6 +27,7 @@ function Test(props) {
             node.receiveShadow = true;
         }
     });
+
     scene.castShadow = true;
 
     scene.receiveShadow = true;
@@ -38,7 +37,6 @@ function Test(props) {
 export function WindowResizeRescaler(props) {
     var tanFOV = Math.tan(((Math.PI / 180) * 90) / 2);
     const ref = props.dref;
-
     useFrame((state, delta) => {
         if (!state || !ref || !ref.current) {
             return;
@@ -69,7 +67,6 @@ function Effect() {
         );
 
         if (stop_animation <= 0.1) {
-            console.log(camera.position, t);
             camera.position.set(
                 t.x + original_camera_pos.x,
                 t.y + original_camera_pos.y,
@@ -85,7 +82,6 @@ function Effect() {
                     camera.position.z - t.z
                 );
                 original_camera_pos = r;
-                console.log("stopin'");
             }
         }
 
@@ -100,7 +96,6 @@ function Effect() {
             size.height
         );
         camera.aspect = size.x / size.y;
-        console.log("UP");
 
         camera.fov = (360 / Math.PI) * Math.atan(90 / (size.x / size.y));
         camera.updateProjectionMatrix();
@@ -115,9 +110,9 @@ function Effect() {
         bcs.material.uniforms["contrast"].value = 0.99;
 
         finalComposer.addPass(renderScene);
-
         finalComposer.addPass(hss);
         finalComposer.addPass(bcs);
+
 
         return [comp, finalComposer];
     }, [camera, original_camera_pos]);
@@ -145,6 +140,7 @@ function Loader() {
         </Html>
     );
 }
+
 export default function Computer(props) {
     const ref = useRef(null);
     let stop = () => {
@@ -154,7 +150,7 @@ export default function Computer(props) {
         <Canvas
             shadows={true}
             camera={new THREE.PerspectiveCamera(90, 1920 / 1080, 0.1, 1000)}
-            onCreated={(gl) => {}}
+            onCreated={(gl) => { }}
             ref={ref}
             onMouseDown={stop}
             onScroll={stop}

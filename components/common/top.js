@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import Link from "next/link";
+
 function TopMenu(props) {
     return (
         <div {...props}>
@@ -22,6 +23,7 @@ function TopMenu(props) {
         </div>
     );
 }
+
 export function TopBar(props) {
     const barref = useRef(null);
     const menuref = useRef(null);

@@ -5,6 +5,7 @@ import path from "path";
 import { serialize } from "next-mdx-remote/serialize";
 import Link from "next/link";
 import { BottomBar } from "../../components/common/bottom";
+import Image from "next/image";
 import { TopBar } from "../../components/common/top";
 import { MDXRemote } from "next-mdx-remote";
 import remarkGfm from "remark-gfm";
@@ -25,6 +26,7 @@ function code_impl({ className, ...props }) {
         <code className="font-light text-base text-black  " {...props}></code>
     );
 }
+
 const components = {
     img: (props) => <img {...props} />,
     h1: (props) => (
@@ -80,9 +82,10 @@ const components = {
     ),
     li: (props) => <li className="text-base py-1 text-black" {...props}></li>,
 };
+
 export default function Post({ front, slug, mdx, source }) {
     return (
-        <div className=" w-full bg-black">
+        <div className=" w-full">
             <Head>
                 <title>{front.title}</title>
                 <meta
@@ -108,28 +111,27 @@ export default function Post({ front, slug, mdx, source }) {
                 <meta name="description" content={front.description} />
             </Head>
             <TopBar />
-            <div
-                className=" bg-white text-white flex flex-col lg:flex-row min-h-[100vh] pt-32 py-8 w-full px-8 bg-fixed bg-cover bg-center"
-                style={{
-                    backgroundImage: "url('/" + front.socialImage + "')",
-                }}
-            >
-                <div className="m-auto max-w-prose w-full  bg-black ">
-                    <h1 className="text-6xl font-extrabold py-10 m-auto w-fit">
+            <div className="fixed w-screen h-screen bg-transparent z-[-1]">
+                <Image src={"/" + front.socialImage} layout="fill" objectFit="cover" quality="90" />
+            </div>
+            <div className="bg-transparent  text-white flex flex-col lg:flex-row min-h-[100vh] pt-32 py-8 w-full px-8"  >
+                <div className="m-auto max-w-prose w-full  bg-black   ">
+                    <h1 className="text-6xl font-extrabold p-10 m-auto w-fit ">
                         {front.title}
                     </h1>
                 </div>
             </div>
-            <div className=" bg-white text-white flex flex-col lg:flex-row min-h-[50vh] pt-8 py-8 w-full px-8">
-                <div className="m-auto max-w-prose w-full  ">
+            <div className=" bg-white text-white flex flex-col lg:flex-row min-h-[50vh] pt-8 py-8 w-full px-8 ">
+                <div className="m-auto max-w-prose w-full   ">
                     <MDXRemote {...mdx} components={components} />
                 </div>
             </div>
 
-            <BottomBar className="text-white flex flex-raw m-auto p-8" />
+            <BottomBar className="text-white flex flex-raw m-auto p-8 bg-black" />
         </div>
     );
 }
+
 export function getStaticPaths() {
     const files = fs.readdirSync("public/post/");
     const paths = files
