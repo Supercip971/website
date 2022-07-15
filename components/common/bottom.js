@@ -3,7 +3,7 @@ export function BottomBar(props) {
         <div {...props}>
             <div className="px-8 m-auto">
                 
-                <a href="github.com/supercip971"> source code </a>
+                <a href="https://github.com/Supercip971/website"> source code </a>
             </div>
             <div className="px-8 m-auto">
                 The 3D model is based on{" "}
