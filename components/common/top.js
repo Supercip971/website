@@ -5,20 +5,20 @@ function TopMenu(props) {
     return (
         <div {...props}>
             <Link href="/" passHref>
-                <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
-                    CYP
+                <h1 className=" button py-2 px-8 text-2xl text-white  ">
+                    Home
                 </h1>
             </Link>
             <Link href="/blog" passHref>
-                <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
-                    BLOG
+                <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                    Blog
                 </h1>
             </Link>
-            <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
-                PROJECT
+            <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                Project
             </h1>
-            <h1 className="p-8 hover:bg-black hover:text-white cursor-pointer">
-                ABOUT
+            <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                About
             </h1>
         </div>
     );
