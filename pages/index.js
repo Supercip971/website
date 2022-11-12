@@ -18,18 +18,17 @@ export default function Home() {
                 <div className=" m-auto w-full lg:w-1/2 h-[50vh] lg:h-screen">
                     <Computer className="" />
                 </div>
-                <div className="m-auto max-w-prose w-full lg:w-1/2 p-8">
-                    <h1 className="text-2xl font-extrabold py-8">Hello !</h1>
-                    <h3 className="text-xl">
-                        This website is verry work in progress ! don't expect
-                        anything interesting/responsive here... Lorem ipsum odor
-                        amet, consectetuer adipiscing elit. Ac purus in massa
-                        egestas mollis varius; dignissim elementum. Mollis
-                        tincidunt mattis hendrerit dolor eros enim, nisi ligula
-                        ornare. Hendrerit parturient habitant pharetra rutrum
-                        gravida porttitor eros feugiat. Mollis elit sodales
-                        taciti duis praesent id. Consequat urna vitae morbi nunc
-                        congue
+                        <Mlink href="#about">
+                            About
+                        </Mlink>
+                        <Mlink href="#about">
+                            Project
+                        </Mlink>
+                        <Mlink href="/blog">
+                            Blog
+                        </Mlink>
+
+                        <Mlink href="https://github.com/Supercip971/website"> Source </Mlink>
                     </h3>
                 </div>
             </div>
@@ -44,9 +43,8 @@ export default function Home() {
                             fpga). But sometimes I also try to do high level
                             programming (as you can see with this website). In
                             general everything I do is open source. I've been
-                            working on multiple projects that you can see{" "}
-                            <a href="/projects">here</a>. You can also see my{" "}
-                            <a href="/blog">small blog</a> which is not very
+                            working on multiple <Mlink href="/projects">projects</Mlink>. You can also see my{" "}
+                            <Mlink href="/blog">small blog</Mlink> which is not very
                             full of content for the time being.
                         </h3>
                     </div>

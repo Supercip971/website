@@ -12,6 +12,7 @@ import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
 
 import Head from "next/head";
+import Mlink from "../../components/common/link";
 
 function code_impl({ className, ...props }) {
     const match = /language-(\w+)/.exec(className || "");
@@ -28,6 +29,9 @@ function code_impl({ className, ...props }) {
 }
 
 const components = {
+    a: (props) => (
+        <Mlink {...props}>
+        </Mlink>),
     img: (props) => <img {...props} />,
     h1: (props) => (
         <h1 className="text-4xl font-extrabold py-4 text-black" {...props}></h1>

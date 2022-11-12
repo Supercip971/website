@@ -1,9 +1,11 @@
+import Mlink from "./link";
+
 export function BottomBar(props) {
     return (
         <div {...props}>
             <div className="px-8 m-auto">
                 
-                <a href="https://github.com/Supercip971/website"> source code </a>
+                <Mlink href="https://github.com/Supercip971/website"> source code </Mlink>
             </div>
             <div className="px-8 m-auto">
                 The 3D model is based on{" "}
