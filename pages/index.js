@@ -12,6 +12,8 @@ export default function Home() {
                     name="viewport"
                     content="initial-scale=1.0, width=device-width"
                 />
+
+                <meta name="description" content="My little website with my portfolio, project and blog." />
             </Head>
             <TopBar />
             <div className=" bg-black text-white flex flex-col lg:flex-row min-h-screen">

@@ -18,6 +18,7 @@ export default function PostList({ posts }) {
                     content="initial-scale=1.0, width=device-width"
                 />
                 <meta name="author" content="cyp" />
+                <meta name="description" content="My blog posts about programming, technology and other stuff" />
             </Head>
             <TopBar />
             <div className=" bg-black text-white flex flex-col lg:flex-row min-h-[50vh] pt-32 p-8">
