@@ -1,6 +1,10 @@
 MIT License
 
-Note: this license is not used on files under the directory `public/computer`, as it is based on a CC-BY 3D model. You can see it's license under the file `public/computer/license.txt`.
+Note: 
+- this license is not used on:
+  - files under the directory `public/computer`, as it is based on a CC-BY 3D model. You can see it's license under the file `public/computer/license.txt`.
+  - the file `public/pecita/Pecita.otf`, as it is licensed under the SIL OPEN FONT LICENSE. You can see it's license under the file `public/pecita/license.txt`
+  - 
 
 Copyright (c) 2022 supercyp
 
