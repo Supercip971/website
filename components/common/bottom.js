@@ -8,18 +8,7 @@ export function BottomBar(props) {
                 <Mlink href="https://github.com/Supercip971/website"> source code </Mlink>
             </div>
             <div className="px-8 m-auto">
-                The 3D model is based on{" "}
-                <a href="https://sketchfab.com/3d-models/computer-terminal-b3a26b00c5b04eedad0a1cdca884130f">
-                    "Computer Terminal"
-                </a>{" "}
-                by{" "}
-                <a href="https://sketchfab.com/ChrisSweetwood">
-                    Chris Sweetwood
-                </a>{" "}
-                is licensed under{" "}
-                <a href="http://creativecommons.org/licenses/by-sa/4.0/">
-                    CC-BY-SA-4.0
-                </a>
+                <Mlink href="/licenses"> licenses </Mlink>
             </div>
         </div>
     );
