@@ -5,7 +5,6 @@ import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { BrightnessContrastShader } from "three/examples/jsm/shaders/BrightnessContrastShader";
 import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
-import getGrainShader from "./grainShader";
 import { HueSaturationShader } from "three/examples/jsm/shaders/HueSaturationShader";
 
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
@@ -82,7 +81,6 @@ function Effect(ref) {
         );
     }
 
-    const grain = new ShaderPass(getGrainShader());
     useFrame((state, delta) => {
 
         setFramesec(framesec + delta);
@@ -164,11 +162,6 @@ function Effect(ref) {
         finalComposer.addPass(renderScene);
         finalComposer.readBuffer = offscreenTarget;
         offscreenTarget.writeBuffer = finalComposer;
-        grain.material.uniforms.tSize.value = new THREE.Vector2(
-            render_size.width,
-            render_size.height
-        );
-        grain.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
 
         //         fxaa.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
 
@@ -208,8 +201,6 @@ function Effect(ref) {
         camera.near = 0.1;
         camera.far = 10;
 
-        grain.material.uniforms.cameraNear.value = camera.near;
-        grain.material.uniforms.cameraFar.value = camera.far;
 
 
         camera.updateProjectionMatrix();
