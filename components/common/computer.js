@@ -1,30 +1,31 @@
-import React, { Suspense, useEffect, useMemo, useRef } from "react";
+import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useLoader, useFrame, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { BrightnessContrastShader } from "three/examples/jsm/shaders/BrightnessContrastShader";
-
+import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
+import getGrainShader from "./grainShader";
 import { HueSaturationShader } from "three/examples/jsm/shaders/HueSaturationShader";
 
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import * as THREE from "three";
 
-import {
-    Html,
-    OrbitControls,
-    useProgress,
-} from "@react-three/drei";
+import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 
-import { Vector3 } from "three";
+import { Html, OrbitControls, useProgress } from "@react-three/drei";
 
-function Test(props) {
+import { ShaderMaterial, Vector3 } from "three";
+import { SMAA } from "@react-three/postprocessing";
+
+function Model(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
 
     scene.traverse(function (node) {
         if (node.isMesh) {
             node.castShadow = true;
             node.receiveShadow = true;
+            //    node.material = new ShaderMaterial(getGrainShader());
         }
     });
 
@@ -42,24 +43,49 @@ export function WindowResizeRescaler(props) {
             return;
         }
 
+
+        //   state.setSize(ref.current.width, ref.current.height);
         state.camera.aspect = ref.current.width / ref.current.height;
 
         state.camera.fov =
             (360 / Math.PI) *
             Math.atan(tanFOV / (ref.current.width / ref.current.height));
         state.camera.updateProjectionMatrix();
+
+
         // FIXME: only do this when the window resize
     });
 }
 
-let original_camera_pos = new Vector3(0, 1.5, 4);
+let original_camera_pos = new Vector3(0, 1
+    , 3.5);
 let stop_animation = 0;
-function Effect() {
-    let { gl, scene, camera, size } = useThree();
-    let framesec = 0;
+function Effect(ref) {
+    let { gl, scene, camera, size, viewport } = useThree();
 
+    let [framesec, setFramesec] = useState(0);
+
+    function round_ration(x)
+    {
+        return x;
+    }
+
+    function getSize() {
+
+        const ratio = round_ration(window.devicePixelRatio);
+        const w = (size.width * (ratio));
+
+
+        return new THREE.Vector2(
+            Math.floor(w),
+            Math.floor(w / camera.aspect),
+        );
+    }
+
+    const grain = new ShaderPass(getGrainShader());
     useFrame((state, delta) => {
-        framesec += delta;
+
+        setFramesec(framesec + delta);
         const t = new Vector3(
             Math.sin(-framesec * 0.25) * 0.8,
             Math.cos(framesec * 0.05) * 0.1,
@@ -72,10 +98,11 @@ function Effect() {
                 t.y + original_camera_pos.y,
                 t.z + original_camera_pos.z
             );
+
             camera.updateMatrix();
         } else {
             stop_animation -= delta;
-            if (stop_animation < 0.1) {
+            if (stop_animation <= 0.1) {
                 let r = new Vector3(
                     camera.position.x - t.x,
                     camera.position.y - t.y,
@@ -85,37 +112,92 @@ function Effect() {
             }
         }
 
+        //  grain.material.uniforms.tSize.value = getSize();
+
+
         base.render(camera);
         final.render(camera);
     }, 1);
 
     const [base, final] = useMemo(() => {
-        const renderScene = new RenderPass(scene, camera);
-        const offscreenTarget = new THREE.WebGLRenderTarget(
-            size.width,
-            size.height
-        );
-        camera.aspect = size.x / size.y;
+        gl.antialias = true;
+        gl.alpha = true;
+        const render_size = getSize();
 
-        camera.fov = (360 / Math.PI) * Math.atan(90 / (size.x / size.y));
-        camera.updateProjectionMatrix();
+
+
+        const renderScene = new RenderPass(scene, camera);
+        renderScene.clearDepth = true;
+
+        const offscreenTarget = new THREE.WebGLRenderTarget(
+            render_size.width,
+            render_size.height
+        );
+
+        let depth = new THREE.DepthTexture(render_size.width, render_size.height);
+        offscreenTarget.depthBuffer = true;
+        offscreenTarget.depthTexture = depth;
+        offscreenTarget.depthTexture.format = THREE.DepthFormat;
+        offscreenTarget.depthTexture.type = THREE.FloatType;
+        offscreenTarget.texture.minFilter = THREE.NearestFilter;
+        offscreenTarget.texture.magFilter = THREE.NearestFilter;
+        offscreenTarget.samples = 1;
         const comp = new EffectComposer(gl, offscreenTarget);
         comp.renderToScreen = false;
-        comp.addPass(renderScene);
-        const finalComposer = new EffectComposer(gl);
+        const fxaa = new ShaderPass(FXAAShader);
+        fxaa.material.uniforms["resolution"].value = new THREE.Vector2(
+            1.0 / render_size.width,
+            1.0 / render_size.height
+        );
 
+        comp.addPass(renderScene);
+
+        comp.addPass(fxaa);
+
+        const finalComposer = new EffectComposer(gl);
+        finalComposer.renderToScreen = true;
         const hss = new ShaderPass(HueSaturationShader);
         hss.material.uniforms["saturation"].value = -1;
         const bcs = new ShaderPass(BrightnessContrastShader);
-        bcs.material.uniforms["contrast"].value = 0.99;
+        bcs.material.uniforms["contrast"].value = 0.98;
 
         finalComposer.addPass(renderScene);
+        finalComposer.readBuffer = offscreenTarget;
+        offscreenTarget.writeBuffer = finalComposer;
+        grain.material.uniforms.tSize.value = new THREE.Vector2(
+            render_size.width,
+            render_size.height
+        );
+        grain.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
+
+        //         fxaa.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
+
+
+        hss.material.depthFunc = THREE.AlwaysDepth;
+
+        bcs.material.depthFunc = THREE.AlwaysDepth;
+        fxaa.material.depthFunc = THREE.AlwaysDepth;
+
         finalComposer.addPass(hss);
         finalComposer.addPass(bcs);
 
 
+
+       // const pass = new SMAAPass( render_size.width, render_size.height );
+       // 	finalComposer.addPass( pass );
+
+        //  finalComposer.addPass();
+
+
+
+
+       //             finalComposer.addPass(fxaa);
+
+
+
+
         return [comp, finalComposer];
-    }, [camera, original_camera_pos]);
+    }, [camera]);
 
     useEffect(() => {
         camera.position.set(
@@ -123,10 +205,32 @@ function Effect() {
             original_camera_pos.y,
             original_camera_pos.z
         );
+        camera.near = 0.1;
+        camera.far = 10;
+
+        grain.material.uniforms.cameraNear.value = camera.near;
+        grain.material.uniforms.cameraFar.value = camera.far;
+
+
         camera.updateProjectionMatrix();
-        base.setSize(size.width, size.height);
-        final.setSize(size.width, size.height);
-    }, [base, final, size]);
+
+    }, []);
+
+    useEffect(() => {
+
+
+        base.setSize(getSize().width, getSize().height);
+
+        final.setSize(getSize().width, getSize().height);
+
+        gl.setPixelRatio( round_ration(window.devicePixelRatio));
+        //  console.log(getSize());
+    //      console.log(viewport.dpr);
+    //      console.log(window.devicePixelRatio);
+    //      console.log( Math.round(window.devicePixelRatio * 10) / 10)
+
+
+    }, [base, final, size, viewport]);
     return null;
 }
 
@@ -143,13 +247,16 @@ function Loader() {
 
 export default function Computer(props) {
     const ref = useRef(null);
+
+    let scale = 1.2;
     let stop = () => {
         stop_animation = 5;
+        console.log("reset");
     };
     return (
         <Canvas
             shadows={true}
-            camera={new THREE.PerspectiveCamera(90, 1920 / 1080, 0.1, 1000)}
+            camera={new THREE.PerspectiveCamera(90, (1920 * 2) / (1080 * 2), 0.1, 50)}
             onCreated={(gl) => { }}
             ref={ref}
             onMouseDown={stop}
@@ -159,6 +266,7 @@ export default function Computer(props) {
             onDragStart={stop}
             onDrag={stop}
             onTouchMove={stop}
+            className="h-full w-full"
             {...props}
         >
             <WindowResizeRescaler dref={ref} />
@@ -169,9 +277,9 @@ export default function Computer(props) {
                 intensity={3.9}
                 color={[1, 1, 1]}
             />
-            <OrbitControls enableZoom={true} target={[0, 1, 0]} />
+            <OrbitControls enableZoom={true} target={[0, scale / 2, 0]} />
             <Suspense fallback={<Loader />}>
-                <Test castShadow receiveShadow scale={1.5} />
+                <Model castShadow receiveShadow scale={scale} />
             </Suspense>
             <Effect />
         </Canvas>
