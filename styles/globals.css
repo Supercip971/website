@@ -8,10 +8,12 @@
   font-weight: 100;
   font-display: swap;
   src: url(/pecita/Pecita.otf) format('opentype');
- /* unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;*/
+  /* unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;*/
 }
+
 html,
 body {
+  scroll-behavior: smooth;
   padding: 0;
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
@@ -22,14 +24,32 @@ body {
   font-family: 'Pecita', serif;
 
 }
+
+.title {
+
+  font-size: xxx-large;
+}
+
+
+
 @layer components {
+
+
+  .img-cover {
+    object-fit: cover;
+
+  }
+
+  .btitle {
+    @apply bg-sky-500 text-white font-black text-2xl px-2 my-8 w-fit h-fit;
+  }
 
   .button {
     @apply text-sky-500;
     @apply no-underline;
 
     @apply font-bold;
-  @apply h-fit;
+    @apply h-fit;
 
     cursor: pointer;
     box-shadow: inset 0 0 0 0 #fff;
@@ -47,12 +67,12 @@ body {
     box-shadow: inset 200px 0 0 0 rgb(14 165 233 / var(--tw-text-opacity));
     color: white;
 
-}
+  }
 
   .link {
     white-space: nowrap;
     @apply text-sky-500;
-        @apply no-underline;
+    @apply no-underline;
 
     @apply font-bold;
     @apply h-fit;
@@ -66,16 +86,17 @@ body {
     margin: 0 0.1rem;
     padding: 0 0.25rem;
 
-}
+  }
 
   .link:hover {
 
     box-shadow: inset var(--end) 0 0 0 rgb(14 165 233 / var(--tw-text-opacity));
     color: white;
 
-}
+  }
 
   .link::after {
     content: " ↗";
 
   }
+}

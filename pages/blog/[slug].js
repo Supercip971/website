@@ -120,17 +120,17 @@ export default function Post({ front, slug, mdx, source }) {
             <div className="min-h-screen w-full flex  flex-col lg:flex-row  ">
                 <div className="h-[50vh] lg:h-screen  w-screen ">
                     <Image src={"/" + front.socialImage} alt="blog post picture" sizes="100vw" fill quality="90" className=" img-cover inline-block " />
-            </div>
+                </div>
 
                 <header className="bg-black/75 bg-gradient-to-t from-black to-black/10 backdrop-blur-xl  flex flex-col h-[50vh] lg:h-screen lg:max-w-prose  text-white pt-32 py-8 px-8 z-0"  >
                     <div className="m-auto max-w-prose w-full    ">
                         <h1 className="text-5xl  p-4 m-auto w-fit text-white font-black bg-sky-500 ">
-                        {front.title}
-                    </h1>
+                            {front.title}
+                        </h1>
                         <h2 className="pt-4 ">
                             {front.description}
                         </h2>
-                </div>
+                    </div>
                     <div className="flex">
                         <Link href="#content" scroll={false}>
                             ↓
@@ -138,9 +138,9 @@ export default function Post({ front, slug, mdx, source }) {
                         <time className="ml-auto" dateTime={front.publishedOn}>
                             {front.publishedOn}
                         </time>
-            </div>
+                    </div>
                 </header>
-                </div>
+            </div>
 
             <div className=" bg-white text-white flex flex-col lg:flex-row min-h-[50vh] pt-16 py-8 w-full px-8 z-2 " id="content">
                 <main className="m-auto max-w-prose w-full text-black   " >
