@@ -4,7 +4,7 @@ import localFont from '@next/font/local'
 
 
 // WTF why can't I just use the root of the project ?
-const myFont = localFont({ src: '../../public/pecita/Pecita.otf', preload:true })
+const myFont = localFont({ src: '../../public/pecita/Pecita.otf' })
 
 export default function Handwritten(props) {
     return (

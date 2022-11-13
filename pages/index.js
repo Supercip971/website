@@ -14,7 +14,7 @@ export default function Home() {
                     name="viewport"
                     content="initial-scale=1.0, width=device-width"
                 />
-                <link rel="preload" href="/pecita/Pecita.otf" as="font" type="otf" crossOrigin="anonymous" />
+                <link rel="preload" href="/pecita/Pecita.otf" as="font" type="otf" crossOrigin="/" />
                 <meta name="description" content="My little website with my portfolio, project and blog." />
             </Head>
             <div className=" bg-black text-white flex flex-col lg:flex-row h-screen flex-1 items-stretch">
