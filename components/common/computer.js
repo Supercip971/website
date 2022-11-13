@@ -16,6 +16,7 @@ import { Html, OrbitControls, useProgress } from "@react-three/drei";
 
 import { ShaderMaterial, Vector3 } from "three";
 import { SMAA } from "@react-three/postprocessing";
+import Head from "next/head";
 
 function Model(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
@@ -64,8 +65,7 @@ function Effect(ref) {
 
     let [framesec, setFramesec] = useState(0);
 
-    function round_ration(x)
-    {
+    function round_ration(x) {
         return x;
     }
 
@@ -176,15 +176,15 @@ function Effect(ref) {
 
 
 
-       // const pass = new SMAAPass( render_size.width, render_size.height );
-       // 	finalComposer.addPass( pass );
+        // const pass = new SMAAPass( render_size.width, render_size.height );
+        // 	finalComposer.addPass( pass );
 
         //  finalComposer.addPass();
 
 
 
 
-       //             finalComposer.addPass(fxaa);
+        //             finalComposer.addPass(fxaa);
 
 
 
@@ -214,11 +214,11 @@ function Effect(ref) {
 
         final.setSize(getSize().width, getSize().height);
 
-        gl.setPixelRatio( round_ration(window.devicePixelRatio));
+        gl.setPixelRatio(round_ration(window.devicePixelRatio));
         //  console.log(getSize());
-    //      console.log(viewport.dpr);
-    //      console.log(window.devicePixelRatio);
-    //      console.log( Math.round(window.devicePixelRatio * 10) / 10)
+        //      console.log(viewport.dpr);
+        //      console.log(window.devicePixelRatio);
+        //      console.log( Math.round(window.devicePixelRatio * 10) / 10)
 
 
     }, [base, final, size, viewport]);
@@ -245,34 +245,43 @@ export default function Computer(props) {
         console.log("reset");
     };
     return (
-        <Canvas
-            shadows={true}
-            camera={new THREE.PerspectiveCamera(90, (1920 * 2) / (1080 * 2), 0.1, 50)}
-            onCreated={(gl) => { }}
-            ref={ref}
-            onMouseDown={stop}
-            onScroll={stop}
-            onDragEnter={stop}
-            onWheel={stop}
-            onDragStart={stop}
-            onDrag={stop}
-            onTouchMove={stop}
-            className="h-full w-full"
-            {...props}
-        >
-            <WindowResizeRescaler dref={ref} />
-            <ambientLight intensity={0.8} />
-            <directionalLight
-                position={[0, 10, 18]}
-                castShadow
-                intensity={3.9}
-                color={[1, 1, 1]}
-            />
-            <OrbitControls enableZoom={true} target={[0, scale / 2, 0]} />
-            <Suspense fallback={<Loader />}>
-                <Model castShadow receiveShadow scale={scale} />
-            </Suspense>
-            <Effect />
-        </Canvas>
+        <>
+            <Head>
+                <link rel="preload" href="/computer/texture/TerminalMaterial_baseColor_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
+                <link rel="preload" href="/computer/texture/TerminalMaterial_emissive_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
+                <link rel="preload" href="/computer/texture/TerminalMaterial_normal_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
+                <link rel="preload" href="/computer/texture/TerminalMaterial_metallicRoughness_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
+
+            </Head>
+            <Canvas
+                shadows={true}
+                camera={new THREE.PerspectiveCamera(90, (1920 * 2) / (1080 * 2), 0.1, 50)}
+                onCreated={(gl) => { }}
+                ref={ref}
+                onMouseDown={stop}
+                onScroll={stop}
+                onDragEnter={stop}
+                onWheel={stop}
+                onDragStart={stop}
+                onDrag={stop}
+                onTouchMove={stop}
+                className="h-full w-full"
+                {...props}
+            >
+                <WindowResizeRescaler dref={ref} />
+                <ambientLight intensity={0.8} />
+                <directionalLight
+                    position={[0, 10, 18]}
+                    castShadow
+                    intensity={3.9}
+                    color={[1, 1, 1]}
+                />
+                <OrbitControls enableZoom={true} target={[0, scale / 2, 0]} />
+                <Suspense fallback={<Loader />}>
+                    <Model castShadow receiveShadow scale={scale} />
+                </Suspense>
+                <Effect />
+            </Canvas>
+        </>
     );
 }

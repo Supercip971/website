@@ -1,10 +1,10 @@
 import Computer from "../components/common/computer";
 import { BottomBar } from "../components/common/bottom";
 import { TopBar } from "../components/common/top";
-
 import Head from "next/head";
 import Link from "next/link";
 import Mlink from "../components/common/link";
+import Handwritten from "../components/common/handwritten";
 export default function Home() {
     return (
         <div className=" w-full bg-black">
@@ -14,7 +14,7 @@ export default function Home() {
                     name="viewport"
                     content="initial-scale=1.0, width=device-width"
                 />
-
+                <link rel="preload" href="/pecita/Pecita.otf" as="font" type="otf" crossOrigin="anonymous" />
                 <meta name="description" content="My little website with my portfolio, project and blog." />
             </Head>
             <div className=" bg-black text-white flex flex-col lg:flex-row h-screen flex-1 items-stretch">
@@ -27,10 +27,10 @@ export default function Home() {
                     mx-auto lg:mr-16
                     lg:pr-8 shrink-0">
                     <h1 className=" text-2xl text-white font-black py-8  text-center">
-                        Hello ! I'm <span className="mfont text-sky-500 title">cyp</span>.
+                        Hello ! I'm <Handwritten>cyp</Handwritten>.
                     </h1>
                     <h2 className="text-xl text-white">
-                        I'm a 16 year old french developer, on this website you can see my blog or my projects.  
+                        I'm a 16 year old french developer, on this website you can see my blog or my projects.
                     </h2>
                     <h3 className="py-8 flex flex-row w-full justify-around">
                         <Mlink href="#about">

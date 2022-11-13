@@ -2,7 +2,7 @@
 const nextConfig = {
     reactStrictMode: true,
 
-    pageExtensions: ["js", "jsx"],
+    pageExtensions: ["js", "jsx", ".module.css"],
 
     webpack5: true,
     webpack: (config) => {
