@@ -35,22 +35,32 @@ function Model(props) {
     return <primitive {...props} object={scene}></primitive>;
 }
 
+
 export function WindowResizeRescaler(props) {
     var tanFOV = Math.tan(((Math.PI / 180) * 90) / 2);
     const ref = props.dref;
+
+    let old_size = (new THREE.Vector2(0, 0));
     useFrame((state, delta) => {
         if (!state || !ref || !ref.current) {
             return;
         }
 
 
-        //   state.setSize(ref.current.width, ref.current.height);
-        state.camera.aspect = ref.current.width / ref.current.height;
+        if (old_size.x != ref.current.width || old_size.y != ref.current.height) {
 
-        state.camera.fov =
-            (360 / Math.PI) *
-            Math.atan(tanFOV / (ref.current.width / ref.current.height));
-        state.camera.updateProjectionMatrix();
+
+            //   state.setSize(ref.current.width, ref.current.height);
+            state.camera.aspect = ref.current.width / ref.current.height;
+
+            state.camera.fov =
+                (360 / Math.PI) *
+                Math.atan(tanFOV / (ref.current.width / ref.current.height));
+            state.camera.updateProjectionMatrix();
+
+
+            old_size = new THREE.Vector2(ref.current.width, ref.current.height);
+        }
 
 
         // FIXME: only do this when the window resize
@@ -118,6 +128,8 @@ function Effect(ref) {
     }, 1);
 
     const [base, final] = useMemo(() => {
+
+
         gl.antialias = true;
         gl.alpha = true;
         const render_size = getSize();
@@ -190,7 +202,7 @@ function Effect(ref) {
 
 
         return [comp, finalComposer];
-    }, [camera]);
+    }, [camera, size]);
 
     useEffect(() => {
         camera.position.set(
@@ -221,7 +233,7 @@ function Effect(ref) {
         //      console.log( Math.round(window.devicePixelRatio * 10) / 10)
 
 
-    }, [base, final, size, viewport]);
+    }, [size]);
     return null;
 }
 

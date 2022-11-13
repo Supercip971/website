@@ -4,7 +4,8 @@ import { TopBar } from "../components/common/top";
 import Head from "next/head";
 import Link from "next/link";
 import Mlink from "../components/common/link";
-import Handwritten from "../components/common/handwritten";
+
+import Handwritten from "../components/text/handwritten";
 export default function Home() {
     return (
         <div className=" w-full bg-black">
