@@ -258,13 +258,6 @@ export default function Computer(props) {
     };
     return (
         <>
-            <Head>
-                <link rel="preload" href="/computer/texture/TerminalMaterial_baseColor_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
-                <link rel="preload" href="/computer/texture/TerminalMaterial_emissive_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
-                <link rel="preload" href="/computer/texture/TerminalMaterial_normal_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
-                <link rel="preload" href="/computer/texture/TerminalMaterial_metallicRoughness_lower.webp" as="fetch" type="image/webp" crossOrigin="anonymous" />
-
-            </Head>
             <Canvas
                 shadows={true}
                 camera={new THREE.PerspectiveCamera(90, (1920 * 2) / (1080 * 2), 0.1, 50)}
