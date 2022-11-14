@@ -1,0 +1,157 @@
+import Computer from "../components/common/computer";
+import { BottomBar } from "../components/common/bottom";
+import { TopBar } from "../components/common/top";
+import Head from "next/head";
+import Link from "next/link";
+import Mlink from "../components/common/link";
+import Image from "next/image";
+import Handwritten from "../components/text/handwritten";
+import PlumeLogo from "../public/pic/plume-logo.svg"
+import BrutalLogo from "../public/pic/brutal-logo.svg"
+
+import WingosLogo from "../public/pic/wingos-logo.png"
+export function Project({ title, children, image, link, id, ...props }) {
+
+
+
+    let direction = "flex-col lg:flex-row-reverse";
+    let back = " bg-white text-black";
+
+    let blurred = " lg:bg-gradient-to-l from-white/100 via-white/100 to-white/100";
+
+    let margindir = ' lg:my-0';
+
+
+    if (id % 2 == 0) {
+        direction = "flex-col lg:flex-row";
+        back = " bg-black text-white";
+        blurred = " lg:bg-gradient-to-r from-black/90 via-black/100 to-black/100";
+        margindir = ' lg:-mr-96 lg:my-0';
+    }
+
+
+
+    return <article {...props} id={id}className={'flex min-h-screen ' + direction + back}>
+        
+        <div className={" h-[50vh] lg:h-screen relative lg:grow z-0  -mb-20 " + margindir}>
+
+            <Image src={image} alt="blog post picture" fill quality="90" className=" img-cover z-0  self-center " />
+
+        </div>
+        <div className={"w-screen lg:w-1/2 grow lg:max-w-prose lg:mx-4 h-[50vh] lg:h-screen align-middle"}>
+            <div className={"w-full m-auto h-full  z-[2]  flex backdrop-blur-3xl bg-gradient-to-b " + blurred}>
+            <div className="m-auto p-8 z-[2] max-w-prose">
+
+                <h1 className="title text-sky-500 font-black  w-fit mx-auto mb-2">
+                    {title}
+                </h1>
+                {children}
+
+            </div>
+            </div>
+        </div>
+
+    </article>;
+}
+export default function Projects() {
+
+
+    let plumeLogo = <Image src={PlumeLogo} alt="plume logo" quality="90" className=" img-cover  self-center " />
+
+    let brutalLogo = <div className="m-auto flex flex-row w-full">
+        <Image src={BrutalLogo} alt="brutal logo" quality="90" width={200} className="  self-center " />
+    </div>
+    let wingosLogo = <Image src={WingosLogo} alt="wingos logo" quality="90" className=" img-cover  self-center " />
+
+
+    return (
+        <div className=" w-full bg-black">
+            <Head>
+                <title>Projects</title>
+                <meta
+                    name="viewport"
+                    content="initial-scale=1.0, width=device-width"
+                />
+                <meta name="author" content="cyp" />
+                <meta name="description" content="My various projects I worked/am working on;" />
+            </Head>
+            <TopBar />
+            <div className=" bg-black text-white flex flex-col lg:flex-row min-h-[50vh] pt-32 p-8">
+                <div className="m-auto max-w-prose w-full  ">
+                    <h1 className="text-4xl font-black py-8 m-auto">
+                        My <span className=" text-sky-500">projects</span>
+                    </h1>
+                    <h2 className="text-xl">
+
+                        My various open source project I worked on or am working on.
+                    </h2>
+                </div>
+            </div>
+
+            <div className=" md:p-0 bg-white min-h-[100vh] w-full m-auto  ">
+                 <Project title={"fcompute"} image="/pic/compute-ray-bg-2.png" id={0}>
+                    A current rewrite of my 'plume' pathtracer (that you can see <Mlink href="#1"> below</Mlink>).
+                    It's a compute shader based raytracer written in C with vulkan from scratch.
+                    It supports GLTF loading, BSDF materials and much more...
+                     
+
+                    <nav className="w-full flex flex-row justify-around py-4">
+                        <Mlink href="https://github.com/Supercip971/compute-ray"> Source code </Mlink>
+                    </nav>
+
+                    <div className="mt-12 font-extralight">
+                         The screenshot is a render of a scene I made with the pathtracer.
+                    </div>
+                </Project>
+
+               
+                <Project title={plumeLogo} image="/pic/plumeray.png" id={1}>
+                    An open source cpu pathtracer written in C from scratch. It's aimed at being fast and simple. It is currently being reworked to be replaced by the <Mlink href="#0">compute shader</Mlink> version.
+
+                    <nav className="w-full flex flex-row justify-around py-4">
+                        <Mlink href="https://github.com/Supercip971/plume-raytracer"> Source code </Mlink>
+                    </nav>
+                </Project>
+
+
+                <Project title={brutalLogo} image="/pic/brutal-bg.png" id={2}>
+
+                    <p className="py-2">An operating system inspired by brutalist design that combines the ideals of UNIX from the 1970s with modern technology and engineering </p>
+                    Brutal is an open source micro kernel written in C. I contributed to the operating system in various way, but I'm not the only maintainer. 
+                    Brutal has it's own (work in progess) C compiler, it has an Interface Definition Language, a UI system, a x86-64 & RISC-V kernel, it's own bootloader...
+                    And everything was written from scratch.
+
+                    <nav className="w-full flex flex-row justify-around py-4">
+                        <Mlink href="https://github.com/brutal-org/brutal"> Source code </Mlink>
+                        <Mlink href="https://brutal.smnx.sh/"> Website </Mlink>
+
+                    </nav>
+                </Project>
+
+
+                <Project title={wingosLogo} image="/pic/wingos-bg.png" id={3}>
+
+                    <p className="py-2">Another 64 bit (amd64) operating system I wrote from scrarch in C++, it has smp, ext2, basic network, ahci... I stopped working on it for Brutal</p>
+
+                    <nav className="w-full flex flex-row justify-around py-4">
+                        <Mlink href="https://github.com/supercip971/wingos"> Source code </Mlink>
+
+                    </nav>
+                </Project>
+                <Project title="This website" image="/post/syscallsysret.webp" id={4}>
+                    This website is where you are ! It was my first time using a web framework (like Next.JS). You can also take a look at an old version of the website that wasn't
+                    using JS and was generated using python. 
+
+
+                    <nav className="w-full flex flex-row justify-around py-4">
+                        <Mlink href="https://github.com/Supercip971/website"> Source code </Mlink>
+
+                        <Mlink href="https://supercip971.github.io/"> Old version </Mlink>
+                    </nav>
+                </Project>
+            </div>
+
+            <BottomBar className="text-white flex flex-raw m-auto p-8" />
+        </div>
+    );
+}

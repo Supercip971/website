@@ -14,12 +14,18 @@ function TopMenu(props) {
                     Blog
                 </h1>
             </Link>
+            <Link href="/projects" passHref>
+             
             <h1 className=" py-2 px-8 hover:bg-black button text-white ">
                 Project
             </h1>
+            </Link>
+            <Link href="/#about">
             <h1 className=" py-2 px-8 hover:bg-black button text-white ">
                 About
             </h1>
+
+            </Link>
         </div>
     );
 }

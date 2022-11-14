@@ -37,7 +37,7 @@ export default function Home() {
                         <Mlink href="#about">
                             About
                         </Mlink>
-                        <Mlink href="#about">
+                        <Mlink href="/projects">
                             Project
                         </Mlink>
                         <Mlink href="/blog">
