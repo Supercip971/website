@@ -124,10 +124,10 @@ function Effect(ref) {
 
 
         base.render(camera);
-        final.render(camera);
+    //    final.render(camera);
     }, 1);
 
-    const [base, final] = useMemo(() => {
+    const [base] = useMemo(() => {
 
 
         gl.antialias = true;
@@ -152,17 +152,10 @@ function Effect(ref) {
         offscreenTarget.texture.minFilter = THREE.NearestFilter;
         offscreenTarget.texture.magFilter = THREE.NearestFilter;
         offscreenTarget.samples = 1;
-        const comp = new EffectComposer(gl, offscreenTarget);
-        comp.renderToScreen = false;
-        const fxaa = new ShaderPass(FXAAShader);
-        fxaa.material.uniforms["resolution"].value = new THREE.Vector2(
-            1.0 / render_size.width,
-            1.0 / render_size.height
-        );
+        
+        //comp.addPass(renderScene);
 
-        comp.addPass(renderScene);
-
-        comp.addPass(fxaa);
+        //comp.addPass(fxaa);
 
         const finalComposer = new EffectComposer(gl);
         finalComposer.renderToScreen = true;
@@ -172,8 +165,8 @@ function Effect(ref) {
         bcs.material.uniforms["contrast"].value = 0.98;
 
         finalComposer.addPass(renderScene);
-        finalComposer.readBuffer = offscreenTarget;
-        offscreenTarget.writeBuffer = finalComposer;
+     //   finalComposer.readBuffer = offscreenTarget;
+     //   offscreenTarget.writeBuffer = finalComposer;
 
         //         fxaa.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
 
@@ -181,7 +174,7 @@ function Effect(ref) {
         hss.material.depthFunc = THREE.AlwaysDepth;
 
         bcs.material.depthFunc = THREE.AlwaysDepth;
-        fxaa.material.depthFunc = THREE.AlwaysDepth;
+       // fxaa.material.depthFunc = THREE.AlwaysDepth;
 
         finalComposer.addPass(hss);
         finalComposer.addPass(bcs);
@@ -201,7 +194,7 @@ function Effect(ref) {
 
 
 
-        return [comp, finalComposer];
+        return [finalComposer];
     }, [camera, size]);
 
     useEffect(() => {
@@ -224,7 +217,7 @@ function Effect(ref) {
 
         base.setSize(getSize().width, getSize().height);
 
-        final.setSize(getSize().width, getSize().height);
+      //  final.setSize(getSize().width, getSize().height);
 
         gl.setPixelRatio(round_ration(window.devicePixelRatio));
         //  console.log(getSize());
