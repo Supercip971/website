@@ -247,7 +247,7 @@ export default function Computer(props) {
     let scale = 1.2;
     let stop = () => {
         stop_animation = 5;
-        console.log("reset");
+    
     };
     return (
         <>
