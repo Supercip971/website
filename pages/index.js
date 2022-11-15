@@ -4,7 +4,7 @@ import { TopBar } from "../components/common/top";
 import Head from "next/head";
 import Link from "next/link";
 import Mlink from "../components/common/link";
-
+import Image from "next/image";
 import Handwritten from "../components/text/handwritten";
 export default function Home() {
      
@@ -26,7 +26,7 @@ export default function Home() {
                 <div className=" max-w-prose w-full lg:w-1/2 
                     mb-16 lg:my-auto 
                     mx-auto lg:mr-16
-                    lg:pr-8 shrink-0">
+                   px-4 lg:pr-8 shrink-0">
                     <h1 className=" text-2xl text-white font-black py-8  text-center">
                         Hello ! I'm <Handwritten>cyp</Handwritten>.
                     </h1>
@@ -49,7 +49,7 @@ export default function Home() {
                 </div>
             </div>
             <div className=" bg-white flex flex-col-reverse lg:flex-row py-16 w-full min-h-screen" id="about">
-                <div className=" m-auto  text-black bg-white w-1/2 max-w-prose ">
+                <div className=" m-auto  text-black bg-white px-4 lg:px-0 w-full lg:w-1/2 max-w-prose ">
                     <div className="w-full">
                         <h1 className="my-8 px-2 font-black text-2xl bg-sky-500 text-white w-fit btitle ">About</h1>
                         <p className="text-xl">
@@ -67,14 +67,9 @@ export default function Home() {
                 </div>
                 <div className=" m-auto  grayscale ease-in-out duration-700 hover:grayscale-0 max-w-prose w-1/3 lg:w-1/6  aspect-square py-8 lg:p-1  bg-white">
                     <div className="rounded-full  invert contrast-200 hover:contrast-100 hover:invert-0 shadow-black ease-in-out duration-700">
-                        <img
-                            layout="responsive"
-                            width="512"
-                            height="512"
-                            alt="My icon"
-                            src="/logo.webp"
-                            className=" aspect-square m-auto p-16 rounded-full "
-                        />
+
+                        <Image src="/logo.webp" alt="my icon" width="512" height="512" quality="90 " className=" rounded-full" />
+
                     </div>
                 </div>
             </div>

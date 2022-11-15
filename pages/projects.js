@@ -38,7 +38,7 @@ export function Project({ title, children, image, link, id, ...props }) {
             <Image src={image} alt="blog post picture" fill quality="90" className=" img-cover z-0  self-center " />
 
         </div>
-        <div className={"w-screen lg:w-1/2 grow lg:max-w-prose lg:mx-4 h-[50vh] lg:h-screen align-middle"}>
+        <div className={"w-screen lg:w-1/2 grow lg:max-w-prose lg:mx-4 h-full lg:h-screen align-middle"}>
             <div className={"w-full m-auto h-full  z-[2]  flex backdrop-blur-3xl bg-gradient-to-b " + blurred}>
             <div className="m-auto p-8 z-[2] max-w-prose">
 
@@ -151,7 +151,7 @@ export default function Projects() {
                 </Project>
             </div>
 
-            <BottomBar className="text-white flex flex-raw m-auto p-8" />
+            <BottomBar className="text-white flex flex-raw m-auto px-4 py-8" />
         </div>
     );
 }

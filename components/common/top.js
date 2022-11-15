@@ -15,15 +15,15 @@ function TopMenu(props) {
                 </h1>
             </Link>
             <Link href="/projects" passHref>
-             
-            <h1 className=" py-2 px-8 hover:bg-black button text-white ">
-                Project
-            </h1>
+
+                <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                    Project
+                </h1>
             </Link>
             <Link href="/#about">
-            <h1 className=" py-2 px-8 hover:bg-black button text-white ">
-                About
-            </h1>
+                <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                    About
+                </h1>
 
             </Link>
         </div>
@@ -48,11 +48,13 @@ export function TopBar(props) {
             </div>
             <div className="fixed z-[10] w-screen m-auto text-2xl font-bold flex flex-col bsm:hidden back bg-black/90 backdrop-blur-lg  text-white ">
                 <div className="w-full m-auto flex flex-row ">
-                    <h1 className="py-4 px-16 hover:bg-black hover:text-white cursor-pointer w-max text-white ">
-                        Home
-                    </h1>
+                    <Link href="/" passHref className="flex h-full m-auto">
+                        <h1 className=" button py-2 px-8 text-2xl text-white  ">
+                            Home
+                        </h1>
+                    </Link>
                     <button
-                        className="py-4 px-16 ml-auto bg-transparent hover:bg-white bg-black hover:text-black text-white  cursor-pointer w-fit"
+                        className="py-2 my-2 px-16 ml-auto bg-transparent  button bg-black hover:text-black text-white  cursor-pointer w-fit"
                         ref={barref}
                         onClick={onclickfn}
                         title="open main menu"
