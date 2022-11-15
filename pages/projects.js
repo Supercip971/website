@@ -1,11 +1,8 @@
-import Computer from "../components/common/computer";
 import { BottomBar } from "../components/common/bottom";
 import { TopBar } from "../components/common/top";
 import Head from "next/head";
-import Link from "next/link";
 import Mlink from "../components/common/link";
 import Image from "next/image";
-import Handwritten from "../components/text/handwritten";
 import PlumeLogo from "../public/pic/plume-logo.svg"
 import BrutalLogo from "../public/pic/brutal-logo.svg"
 

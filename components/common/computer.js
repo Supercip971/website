@@ -1,22 +1,18 @@
-import React, { Suspense, useEffect, useMemo, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { Canvas, useLoader, useFrame, useThree } from "@react-three/fiber";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader";
 import { RenderPass } from "three/examples/jsm/postprocessing/RenderPass";
 import { EffectComposer } from "three/examples/jsm/postprocessing/EffectComposer";
 import { BrightnessContrastShader } from "three/examples/jsm/shaders/BrightnessContrastShader";
-import { FXAAShader } from "three/examples/jsm/shaders/FXAAShader";
 import { HueSaturationShader } from "three/examples/jsm/shaders/HueSaturationShader";
 
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import * as THREE from "three";
 
-import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 
 import { Html, OrbitControls, useProgress } from "@react-three/drei";
 
-import { ShaderMaterial, Vector2, Vector3 } from "three";
-import { SMAA } from "@react-three/postprocessing";
-import Head from "next/head";
+import {  Vector2, Vector3 } from "three";
 
 function Model(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
