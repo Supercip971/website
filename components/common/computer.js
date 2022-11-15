@@ -14,7 +14,7 @@ import { SMAAPass } from 'three/addons/postprocessing/SMAAPass.js';
 
 import { Html, OrbitControls, useProgress } from "@react-three/drei";
 
-import { ShaderMaterial, Vector3 } from "three";
+import { ShaderMaterial, Vector2, Vector3 } from "three";
 import { SMAA } from "@react-three/postprocessing";
 import Head from "next/head";
 
@@ -61,6 +61,7 @@ export function WindowResizeRescaler(props) {
 
             old_size = new THREE.Vector2(ref.current.width, ref.current.height);
         }
+
 
 
         // FIXME: only do this when the window resize
@@ -127,32 +128,17 @@ function Effect(ref) {
     //    final.render(camera);
     }, 1);
 
+    let lsize = new Vector2(0,0)
+
     const [base] = useMemo(() => {
 
 
-        gl.antialias = true;
-        gl.alpha = true;
-        const render_size = getSize();
+//        const render_size = getSize();
 
 
 
         const renderScene = new RenderPass(scene, camera);
-        renderScene.clearDepth = true;
 
-        const offscreenTarget = new THREE.WebGLRenderTarget(
-            render_size.width,
-            render_size.height
-        );
-
-        let depth = new THREE.DepthTexture(render_size.width, render_size.height);
-        offscreenTarget.depthBuffer = true;
-        offscreenTarget.depthTexture = depth;
-        offscreenTarget.depthTexture.format = THREE.DepthFormat;
-        offscreenTarget.depthTexture.type = THREE.FloatType;
-        offscreenTarget.texture.minFilter = THREE.NearestFilter;
-        offscreenTarget.texture.magFilter = THREE.NearestFilter;
-        offscreenTarget.samples = 1;
-        
         //comp.addPass(renderScene);
 
         //comp.addPass(fxaa);
@@ -193,11 +179,15 @@ function Effect(ref) {
 
 
 
-
+       // console.log("[camera, size]");
+        
         return [finalComposer];
-    }, [camera, size]);
+    }, []);
 
     useEffect(() => {
+        gl.antialias = true;
+        gl.alpha = true;
+
         camera.position.set(
             original_camera_pos.x,
             original_camera_pos.y,
@@ -209,24 +199,21 @@ function Effect(ref) {
 
 
         camera.updateProjectionMatrix();
-
+    //    console.log("[]");
+        window.addEventListener( 'resize', () => {
+       //     console.log("[size]", getSize().width, getSize().height);
+    
+            base.setSize(getSize().width, getSize().height);
+    
+          //  final.setSize(getSize().width, getSize().height);
+    
+            gl.setPixelRatio(round_ration(window.devicePixelRatio));
+    
+        }, false );
+            
     }, []);
 
-    useEffect(() => {
-
-
-        base.setSize(getSize().width, getSize().height);
-
-      //  final.setSize(getSize().width, getSize().height);
-
-        gl.setPixelRatio(round_ration(window.devicePixelRatio));
-        //  console.log(getSize());
-        //      console.log(viewport.dpr);
-        //      console.log(window.devicePixelRatio);
-        //      console.log( Math.round(window.devicePixelRatio * 10) / 10)
-
-
-    }, [size]);
+   
     return null;
 }
 
