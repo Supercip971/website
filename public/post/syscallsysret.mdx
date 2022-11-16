@@ -1,5 +1,5 @@
 ---
-title: Syscall & Sysret
+title: Syscall and Sysret
 seoTitle: The differences between syscall and sysret, and how to implement the syscall instruction in an operating system.
 description: The differences between syscall and sysret, and how to implement the syscall instruction in an operating system.
 isPublished: true
@@ -9,7 +9,7 @@ slug: Hello
 socialImage: post/syscallsysret.webp
 ---
 
-# Syscall & Sysret
+# Syscall and Sysret
 
 > note: the article may contain errors, of spellings, codes, or others...
 > if you find one do not hesitate to make an issue or a pr to [github.com/supercip971/supercip971.github.io](https://github.com/Supercip971/supercip971.github.io) ❤️
@@ -31,7 +31,7 @@ After the execution of the syscall code in the interrupt, we can modify the valu
 
 However interruptions are slow for syscall. It needs to check a lot of things and it's not the best solution available.
 
-## Before syscall & sysret: sysenter & sysexit
+## Before syscall and sysret: sysenter and sysexit
 
 Sysenter and Sysexit were added by intel.
 One problem of sysenter and sysexit in 32Bit is that we don't know if it is supported. The instruction may not be available.
@@ -52,9 +52,9 @@ return_addr:
 
 I think it is sketchy and can be the cause of error. This is my opinion, but I think syscall/sysret are 100 times better than sysenter/sysexit.
 
-## What are syscall & sysret?
+## What are syscall and sysret?
 
-First what are syscall & sysret?
+First what are syscall and sysret?
 
 Syscall and sysret are long mode instruction for doing syscall from userspace to the kernel.
 These instructions allow you to make faster and safer syscalls.
