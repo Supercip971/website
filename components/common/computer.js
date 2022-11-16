@@ -7,12 +7,11 @@ import { BrightnessContrastShader } from "three/examples/jsm/shaders/BrightnessC
 import { HueSaturationShader } from "three/examples/jsm/shaders/HueSaturationShader";
 
 import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
-import * as THREE from "three";
 
 
 import { Html, OrbitControls, useProgress } from "@react-three/drei";
 
-import {  Vector2, Vector3 } from "three";
+import {  Vector2, Vector3, DepthModes, PerspectiveCamera } from "three";
 
 function Model(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
@@ -36,7 +35,7 @@ export function WindowResizeRescaler(props) {
     var tanFOV = Math.tan(((Math.PI / 180) * 90) / 2);
     const ref = props.dref;
 
-    let old_size = (new THREE.Vector2(0, 0));
+    let old_size = (new Vector2(0, 0));
     useFrame((state, delta) => {
         if (!state || !ref || !ref.current) {
             return;
@@ -55,7 +54,7 @@ export function WindowResizeRescaler(props) {
             state.camera.updateProjectionMatrix();
 
 
-            old_size = new THREE.Vector2(ref.current.width, ref.current.height);
+            old_size = new Vector2(ref.current.width, ref.current.height);
         }
 
 
@@ -82,7 +81,7 @@ function Effect(ref) {
         const w = (size.width * (ratio));
 
 
-        return new THREE.Vector2(
+        return new Vector2(
             Math.floor(w),
             Math.floor(w / camera.aspect),
         );
@@ -153,9 +152,9 @@ function Effect(ref) {
         //         fxaa.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
 
 
-        hss.material.depthFunc = THREE.AlwaysDepth;
+        hss.material.depthFunc = DepthModes.AlwaysDepth;
 
-        bcs.material.depthFunc = THREE.AlwaysDepth;
+        bcs.material.depthFunc = DepthModes.AlwaysDepth;
        // fxaa.material.depthFunc = THREE.AlwaysDepth;
 
         finalComposer.addPass(hss);
@@ -236,7 +235,7 @@ export default function Computer(props) {
         <>
             <Canvas
                 shadows={true}
-                camera={new THREE.PerspectiveCamera(90, (1920 * 2) / (1080 * 2), 0.1, 50)}
+                camera={new PerspectiveCamera(90, (1920 * 2) / (1080 * 2), 0.1, 50)}
                 onCreated={(gl) => { }}
                 ref={ref}
                 onMouseDown={stop}
