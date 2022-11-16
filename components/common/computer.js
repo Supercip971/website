@@ -11,7 +11,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 
 import { Html, OrbitControls, useProgress } from "@react-three/drei";
 
-import {  Vector2, Vector3, DepthModes, PerspectiveCamera } from "three";
+import {  Vector2, Vector3, PerspectiveCamera } from "three";
 
 function Model(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
@@ -152,9 +152,9 @@ function Effect(ref) {
         //         fxaa.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
 
 
-        hss.material.depthFunc = DepthModes.AlwaysDepth;
+     //   hss.material.depthFunc = DepthModes.AlwaysDepth;
 
-        bcs.material.depthFunc = DepthModes.AlwaysDepth;
+//        bcs.material.depthFunc = DepthModes.AlwaysDepth;
        // fxaa.material.depthFunc = THREE.AlwaysDepth;
 
         finalComposer.addPass(hss);
