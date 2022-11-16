@@ -16,6 +16,7 @@
     "@mdx-js/loader": "^2.0.0-rc.2",
     "@mdx-js/react": "^2.0.0-rc.2",
     "@netlify/plugin-nextjs": "^4.7.1",
+    "@next/bundle-analyzer": "^13.0.3",
     "@next/font": "^13.0.3",
     "@react-three/drei": "^9.4.3",
     "@react-three/fiber": "^8.9.1",
@@ -40,6 +41,7 @@
     "eslint-config-next": "12.1.5",
     "postcss": "^8.4.12",
     "tailwindcss": "^3.0.24",
-    "vercel": "^28.4.17"
+    "vercel": "^28.4.17",
+    "webpack-bundle-analyzer": "^4.7.0"
   }
 }
