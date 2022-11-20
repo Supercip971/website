@@ -159,7 +159,7 @@ export function getStaticPaths() {
         .filter((file) => file.endsWith(".mdx"))
         .map((filename) => ({
             params: {
-                slug: filename.replace(".mdx", ".html"),
+                slug: filename.replace(".mdx", ""),
             },
         }));
     return {
@@ -170,7 +170,7 @@ export function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
     const markdownWithMeta = fs.readFileSync(
-        path.join("public/post/", params.slug.replace(".html", "") + ".mdx"),
+        path.join("public/post/", params.slug + ".mdx"),
         "utf-8"
     );
     const { data: frontMatter, content } = matter(markdownWithMeta);

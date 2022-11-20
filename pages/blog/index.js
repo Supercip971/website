@@ -38,8 +38,8 @@ export default function PostList({ posts }) {
 
                     <article key={slug}>
                         <Link
-                            href={"/blog/[slug].html"}
-                            as={"/blog/" + slug + ".html"}
+                            href={"/blog/[slug]"}
+                            as={"/blog/" + slug}
                             className=" m-auto border overflow-hidden flex  bg-black text-white flex-col max-w-prose mb-8 cursor-pointer"
                             passHref
                         >
