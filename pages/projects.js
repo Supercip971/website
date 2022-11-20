@@ -7,6 +7,34 @@ import PlumeLogo from "../public/pic/plume-logo.svg"
 import BrutalLogo from "../public/pic/brutal-logo.svg"
 
 import WingosLogo from "../public/pic/wingos-logo.png"
+
+export function SProject({ title, children, image, link, ...props }) {
+
+
+    return <article {...props} className="   p-2 m-8 rounded-xl w-fit max-w-1/2">
+
+        <h1 className="m-1 text-3xl text-white font-black  w-fit mx-auto">
+            {title}
+        </h1>
+
+        <div className="p-4 text-white ">
+            <div className="w-fit m-auto max-w-[20vw]">
+
+                {children}
+
+            </div>
+            <nav className="w-full flex flex-row justify-around pt-4">
+
+                <Mlink href={link}>
+                    Source code
+                </Mlink>
+            </nav>
+
+        </div>
+
+
+    </article>;
+}
 export function Project({ title, children, image, link, id, ...props }) {
 
 
@@ -28,8 +56,8 @@ export function Project({ title, children, image, link, id, ...props }) {
 
 
 
-    return <article {...props} id={id}className={'flex min-h-screen ' + direction + back}>
-        
+    return <article {...props} id={id} className={'flex min-h-screen ' + direction + back}>
+
         <div className={" h-[50vh] lg:h-screen relative lg:grow z-0  -mb-20 " + margindir}>
 
             <Image src={image} alt="blog post picture" fill quality="90" className=" img-cover z-0  self-center " />
@@ -37,14 +65,14 @@ export function Project({ title, children, image, link, id, ...props }) {
         </div>
         <div className={"w-screen lg:w-1/2 grow lg:max-w-prose lg:mx-4 h-full lg:h-screen align-middle"}>
             <div className={"w-full m-auto h-full  z-[2]  flex backdrop-blur-3xl bg-gradient-to-b " + blurred}>
-            <div className="m-auto p-8 z-[2] max-w-prose">
+                <div className="m-auto p-8 z-[2] max-w-prose">
 
-                <h1 className="title text-sky-500 font-black  w-fit mx-auto mb-2">
-                    {title}
-                </h1>
-                {children}
+                    <h1 className="title text-sky-500 font-black  w-fit mx-auto mb-2">
+                        {title}
+                    </h1>
+                    {children}
 
-            </div>
+                </div>
             </div>
         </div>
 
@@ -86,22 +114,22 @@ export default function Projects() {
             </div>
 
             <div className=" md:p-0 bg-white min-h-[100vh] w-full m-auto  ">
-                 <Project title={"fcompute"} image="/pic/compute-ray-bg-2.png" id={0}>
+                <Project title={"fcompute"} image="/pic/compute-ray-bg-2.png" id={0}>
                     A current rewrite of my 'plume' pathtracer (that you can see <Mlink href="#1"> below</Mlink>).
                     It's a compute shader based raytracer written in C with vulkan from scratch.
                     It supports GLTF loading, BSDF materials and much more...
-                     
+
 
                     <nav className="w-full flex flex-row justify-around py-4">
                         <Mlink href="https://github.com/Supercip971/compute-ray"> Source code </Mlink>
                     </nav>
 
                     <div className="mt-12 font-extralight">
-                         The screenshot is a render of a scene I made with the pathtracer.
+                        The screenshot is a render of a scene I made with the pathtracer.
                     </div>
                 </Project>
 
-               
+
                 <Project title={plumeLogo} image="/pic/plumeray.png" id={1}>
                     An open source cpu pathtracer written in C from scratch. It's aimed at being fast and simple. It is currently being reworked to be replaced by the <Mlink href="#0">compute shader</Mlink> version.
 
@@ -114,7 +142,7 @@ export default function Projects() {
                 <Project title={brutalLogo} image="/pic/brutal-bg.png" id={2}>
 
                     <p className="py-2">An operating system inspired by brutalist design that combines the ideals of UNIX from the 1970s with modern technology and engineering </p>
-                    Brutal is an open source micro kernel written in C. I contributed to the operating system in various way, but I'm not the only maintainer. 
+                    Brutal is an open source micro kernel written in C. I contributed to the operating system in various way, but I'm not the only maintainer.
                     Brutal has it's own (work in progess) C compiler, it has an Interface Definition Language, a UI system, a x86-64 & RISC-V kernel, it's own bootloader...
                     And everything was written from scratch.
 
@@ -135,9 +163,21 @@ export default function Projects() {
 
                     </nav>
                 </Project>
-                <Project title="This website" image="/post/syscallsysret.webp" id={4}>
+                <Project title="DEVSE" image="/pic/devse.png" id={4}>
+                    I am one of the administrators of the DEVSE community. It's an awesome french community around the development of low level programming and operating systems. 
+                    We have a discord server, a wiki, an IRC, ... 
+
+
+                    <nav className="w-full flex flex-row justify-around py-4">
+                        <Mlink href="https://github.com/devse-org/"> Github organization </Mlink>
+
+                        <Mlink href="https://github.com/devse-org/documentation"> Documentation </Mlink>
+                    </nav>
+                </Project>
+
+                <Project title="This website" image="/post/syscallsysret.webp" id={5}>
                     This website is where you are ! It was my first time using a web framework (like Next.JS). You can also take a look at an old version of the website that wasn't
-                    using JS and was generated using python. 
+                    using JS and was generated using python.
 
 
                     <nav className="w-full flex flex-row justify-around py-4">
@@ -146,6 +186,33 @@ export default function Projects() {
                         <Mlink href="https://supercip971.github.io/"> Old version </Mlink>
                     </nav>
                 </Project>
+                <div className="text-sky-500 bg-black  ">
+                    <h2 className="title font-black py-8 text-center ">
+                        But I also have other projects !
+                    </h2>
+
+                    <div className="flex flex-wrap flex-row  p-8  mx-auto justify-between">
+                        <SProject title={"pico-emu"} link={"github.com"}>
+                            A WIP hobby raspberry pi pico emulator.
+                        </SProject>
+                        <SProject title={"obsidian typing speed"} link={"https://github.com/Supercip971/obsidian-typing-speed"}>
+                            An obsidian plugin to track your typing speed. ( 1000+ downloads ).
+                        </SProject>
+                        <SProject title={"Riscy-interpret"} link={"https://github.com/Supercip971/RISCYINTERPRET"}>
+                            A risc-v interpretter written in C++ from scratch.
+                        </SProject>
+                        <SProject title={"Bid vscode"} link={"https://github.com/brutal-org/bid-vscode"}>
+                            A VSCode extension to use the Brutal Interface Definition language (BID).
+                        </SProject>
+                    </div>
+
+                    <h3 className="m-auto w-full text-center">
+                        <Mlink href="github.com/Supercip971" >
+                            And many more !
+                        </Mlink>
+                    </h3>
+
+                </div>
             </div>
 
             <BottomBar className="text-white flex flex-raw m-auto px-4 py-8" />
