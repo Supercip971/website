@@ -11,14 +11,14 @@ import WingosLogo from "../public/pic/wingos-logo.png"
 export function SProject({ title, children, image, link, ...props }) {
 
 
-    return <article {...props} className="   p-2 m-8 rounded-xl w-fit max-w-1/2">
+    return <article {...props} className="   p-2 m-8 rounded-xl">
 
         <h1 className="m-1 text-3xl text-white font-black  w-fit mx-auto">
             {title}
         </h1>
 
         <div className="p-4 text-white ">
-            <div className="w-fit m-auto max-w-[20vw]">
+            <div className="w-fit m-auto text-center">
 
                 {children}
 
@@ -191,12 +191,12 @@ export default function Projects() {
                         But I also have other projects !
                     </h2>
 
-                    <div className="flex flex-wrap flex-row  p-8  mx-auto justify-between">
+                    <div className="flex flex-wrap flex-row  p-8  mx-auto justify-around  items-stretch  ">
                         <SProject title={"pico-emu"} link={"github.com"}>
                             A WIP hobby raspberry pi pico emulator.
                         </SProject>
                         <SProject title={"obsidian typing speed"} link={"https://github.com/Supercip971/obsidian-typing-speed"}>
-                            An obsidian plugin to track your typing speed. ( 1000+ downloads ).
+                            An obsidian plugin to track your typing speed. (1000+ downloads).
                         </SProject>
                         <SProject title={"Riscy-interpret"} link={"https://github.com/Supercip971/RISCYINTERPRET"}>
                             A risc-v interpretter written in C++ from scratch.
