@@ -14,6 +14,16 @@ const nextConfig = {
         return config;
     },
     
+  async redirects() {
+    // a fix because google don't want to remove the .html link, even when I reset through google search console
+    return [
+      {
+        source: '/blog/syscallsysret.html',
+        destination: '/blog/syscallsysret',
+        permanent: true,
+      },
+    ]
+  },
 };
 
 module.exports = withBundleAnalyzer(nextConfig);
