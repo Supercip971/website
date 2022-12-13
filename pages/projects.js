@@ -207,8 +207,8 @@ export default function Projects() {
                     </div>
 
                     <h3 className="m-auto w-full text-center">
-                        <Mlink href="github.com/Supercip971" >
-                            And many more !
+                        <Mlink href="https://github.com/Supercip971/" >
+                            And much more !
                         </Mlink>
                     </h3>
 
