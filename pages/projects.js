@@ -39,31 +39,31 @@ export function Project({ title, children, image, link, id, ...props }) {
 
 
 
-    let direction = "flex-col lg:flex-row-reverse";
+    let direction = "flex-col xl:flex-row-reverse";
     let back = " bg-white text-black";
 
-    let blurred = " lg:bg-gradient-to-l from-white/100 via-white/100 to-white/100";
+    let blurred = " xl:bg-gradient-to-l from-white/100 via-white/100 to-white/100";
 
-    let margindir = ' lg:my-0';
+    let margindir = ' xl:my-0';
 
 
     if (id % 2 == 0) {
-        direction = "flex-col lg:flex-row";
+        direction = "flex-col xl:flex-row";
         back = " bg-black text-white";
-        blurred = " lg:bg-gradient-to-r from-black/90 via-black/100 to-black/100";
-        margindir = ' lg:-mr-96 lg:my-0';
+        blurred = " xl:bg-gradient-to-r from-black/90 via-black/100 to-black/100";
+        margindir = ' xl:-mr-96 xl:my-0';
     }
 
 
 
     return <article {...props} id={id} className={'flex min-h-screen ' + direction + back}>
 
-        <div className={" h-[50vh] lg:h-screen relative lg:grow z-0  -mb-20 " + margindir}>
+        <div className={" h-[50vh] xl:h-screen relative xl:grow z-0 xl:m-0 m-4 " + margindir}>
 
             <Image src={image} alt="blog post picture" fill quality="90" className=" img-cover z-0  self-center " />
 
         </div>
-        <div className={"w-screen lg:w-1/2 grow lg:max-w-prose lg:mx-4 h-full lg:h-screen align-middle"}>
+        <div className={"w-screen xl:w-1/2 grow xl:max-w-prose xl:mx-4 h-full xl:h-screen align-middle"}>
             <div className={"w-full m-auto h-full  z-[2]  flex backdrop-blur-3xl bg-gradient-to-b " + blurred}>
                 <div className="m-auto p-8 z-[2] max-w-prose">
 
