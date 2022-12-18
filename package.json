@@ -7,7 +7,6 @@
     "dev2": "node ./pages/server.js",
     "build2": "next build",
     "build": "next build",
-    
     "postbuild": "next-sitemap",
     "export": "next export",
     "start": "next start",

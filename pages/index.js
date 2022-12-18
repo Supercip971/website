@@ -42,7 +42,7 @@ export default function Home() {
                             Blog
                         </Mlink>
 
-                        <Mlink href="https://github.com/Supercip971/website"> Source </Mlink>
+                        <Mlink href="/contact"> Contact </Mlink>
                     </h3>
                 </div>
             </div>

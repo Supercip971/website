@@ -10,6 +10,10 @@ export function BottomBar(props) {
             <div className=" m-auto">
                 <Mlink href="/licenses"> licenses </Mlink>
             </div>
+
+            <div className=" m-auto">
+                <Mlink href="/contact"> contact </Mlink>
+            </div>
         </div>
     );
 }
