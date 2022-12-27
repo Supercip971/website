@@ -92,7 +92,7 @@ export default function Post({ front, slug, mdx, source }) {
     return (
         <div className=" w-full">
             <Head>
-                <title>{front.title}</title>
+                <title>{front.seoTitle}</title>
                 <meta
                     name="viewport"
                     content="initial-scale=1.0, width=device-width"
@@ -105,15 +105,29 @@ export default function Post({ front, slug, mdx, source }) {
                     content={"/" + front.socialImage.replace(".webp", ".png")}
                 />
                 <meta property="og:description" content={front.description} />
-                <meta property="og:title" content={front.title} />
-                <meta
-                    name="keywords"
-                    content={
-                        slug + ", " + front.title + ", blog, cyp, supercyp"
-                    }
-                />
+                <meta property="og:title" content={front.seoTitle} />
+               
 
                 <meta name="description" content={front.description} />
+                <script type="application/ld+json">
+                {JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "NewsArticle",
+                  "headline": front.seoTitle,
+                  "image": [
+                    front.socialImage,
+                    front.socialImage.replace(".webp", ".png"),
+                   ],
+                  "datePublished": front.publishedOn + "T00:00:00+00:00",
+                  "dateModified": front.modifiedOn + "T00:00:00+00:00",
+                  "author": [{
+                      "@type": "Person",
+                      "name": "Cyp",
+                      "url": "https://cyp.sh/#about"
+                    },
+                  ]
+                })}
+                </script>
             </Head>
             <TopBar />
 
@@ -157,11 +171,13 @@ export function getStaticPaths() {
     const files = fs.readdirSync("public/post/");
     const paths = files
         .filter((file) => file.endsWith(".mdx"))
-        .map((filename) => ({
+        .map((filename ) => ({
             params: {
                 slug: filename.replace(".mdx", ""),
             },
         }));
+
+    
     return {
         paths,
         fallback: false,
