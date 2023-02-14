@@ -1,45 +1,48 @@
 import { useRef } from "react";
 import Link from "next/link";
+import { MButton, MNav } from "./link";
 
 function TopMenu(props) {
     return (
-        <div {...props}>
-            <Link href="/" passHref>
-                <h1 className=" button py-2 px-8 text-2xl text-white  ">
+        <ol {...props}>
+            <MNav href="/" passHref>
+                <li className=" button py-2 px-8 text-2xl text-white  ">
                     Home
-                </h1>
-            </Link>
-            <Link href="/blog" passHref>
-                <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                </li>
+            </MNav>
+            <MNav href="/blog" passHref>
+                <li className=" py-2 px-8  button text-white ">
                     Blog
-                </h1>
-            </Link>
-            <Link href="/projects" passHref>
+                </li>
+            </MNav>
+            <MNav href="/projects" passHref>
 
-                <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                <li className=" py-2 px-8 button text-white ">
                     Project
-                </h1>
-            </Link>
-            <Link href="/#about">
-                <h1 className=" py-2 px-8 hover:bg-black button text-white ">
+                </li>
+            </MNav>
+            <MNav href="/#about">
+                <li className=" py-2 px-8  button text-white ">
                     About
-                </h1>
+                </li>
 
-            </Link>
-        </div>
+            </MNav>
+        </ol>
     );
 }
 
 export function TopBar(props) {
-    const barref = useRef(null);
     const menuref = useRef(null);
 
     const onclickfn = () => {
-        console.log("hello world");
-        menuref.current.classList.toggle("hidden");
-    };
+
+        
+        menuref.current.classList.toggle("invisible");
+        menuref.current.classList.toggle("max-h-0");
+
+   };
     return (
-        <div>
+        <nav>
             <div className="fixed z-[10] py-2 w-screen m-auto text-2xl font-bold hidden bsm:flex back bg-black/90 backdrop-blur-lg  text-white ">
                 <TopMenu
                     className="w-fit m-auto bsm:flex flex-row "
@@ -47,37 +50,37 @@ export function TopBar(props) {
                 />
             </div>
             <div className="fixed z-[10] w-screen m-auto text-2xl font-bold flex flex-col bsm:hidden back bg-black/90 backdrop-blur-lg  text-white ">
-                <div className="w-full m-auto flex flex-row ">
-                    <Link href="/" passHref className="flex h-full m-auto">
-                        <h1 className=" button py-2 px-8 text-2xl text-white  ">
+                <div className=" w-full m-auto flex flex-row py-1 px-4 ">
+                    <MNav href="/" passHref className="flex h-full m-auto">
+                        <div className=" button py-2 px-8 text-2xl text-white  ">
                             Home
-                        </h1>
-                    </Link>
-                    <button
-                        className="py-2 my-2 px-16 ml-auto bg-transparent  button bg-black hover:text-black text-white  cursor-pointer w-fit"
-                        ref={barref}
+                        </div>
+                    </MNav>
+                    <MButton
+                        className="w-full    h-12 py-2  pr-2 m-auto  bg-black hover:text-black text-white  cursor-pointer"
                         onClick={onclickfn}
                         title="open main menu"
                     >
+                        
                         <svg
                             height="100%"
                             viewBox="0 0 178 178"
                             fill="none"
                             xmlns="http://www.w3.org/2000/svg"
 
-                            className="pr-8 fill-current"
+                            className="m-auto  fill-current"
                         >
                             <rect x="15" y="29" width="148" height="24" />
                             <rect x="15" y="77" width="148" height="24" />
                             <rect x="15" y="125" width="148" height="24" />
                         </svg>
-                    </button>
+                    </MButton>
                 </div>
 
-                <div ref={menuref} className="hidden w-screen ease-in-out duration-300">
+                <div ref={menuref} className=" invisible w-screen ease-in-out  max-h-0">
                     <TopMenu className="w-full m-auto flex-col flex p-8" />
                 </div>
             </div>
-        </div>
+        </nav>
     );
 }

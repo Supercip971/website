@@ -1,5 +1,5 @@
 import { BottomBar } from "../components/common/bottom"
-import Mlink, { MButton } from "../components/common/link"
+import Mlink, { MAction, MButton } from "../components/common/link"
 import { TopBar } from "../components/common/top"
 export default function Contact() {
     return (
@@ -27,7 +27,7 @@ export default function Contact() {
 
                     <div className="w-fit p-4">
 
-                        <MButton> <input type="submit" value="Submit" className=" text-xl w-fit cursor-pointer" /> </MButton>
+                        <MAction> <input type="submit" value="Submit" className=" text-xl w-fit cursor-pointer" /> </MAction>
 
                         <input type="hidden" name="redirectTo" value="https://cyp.sh/contact_next"></input>
                     </div>

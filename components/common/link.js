@@ -1,28 +1,118 @@
 import Link from "next/link";
 import { useEffect, useRef } from "react";
 
-export function MButton({ children, ...props }) {
+export function MNav({ href, children, ...props })
+{
 
     let dyn = useRef(<div></div>);
 
     /* we set the width of the component, 
      * We shouldn't use js and there should be a way to do this 
      * without using js. 
-     */ 
-    useEffect(() => {
-        if (!dyn) {
+     */
+    useEffect(() =>
+    {
+        if (!dyn)
+        {
             return;
         }
 
-        dyn.onResize = () => {
-            dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
+        let update = () => {
 
-            console.debug(dyn.current);
+            dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
         }
+
+        window.addEventListener('resize', update)
+
+
+
+        
+        dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
+
+
+
+
+
+        return _ => {
+            window.removeEventListener('resize', update)
+        }
+    });
+
+    return (
+        <Link {...props} className="button" href={href} scroll={false} ref={dyn}>
+            {children}
+        </Link>
+    );
+}
+
+export function MButton({ children, className, ...props })
+{
+
+    let dyn = useRef(<div></div>);
+
+    /* we set the width of the component, 
+     * We shouldn't use js and there should be a way to do this 
+     * without using js. 
+     */
+    useEffect(() =>
+    {
+        if (!dyn)
+        {
+            return;
+        }
+        let update = () => {
+
+            dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
+        }
+
+        window.addEventListener('resize', update)
+
+
 
 
         dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
 
+        return _ => {
+            window.removeEventListener('resize', update)
+        }
+    });
+
+    return (
+        <button {...props} className={className + " button"} scroll={false} ref={dyn}>
+            {children}
+        </button>
+    );
+}
+export function MAction({ children, ...props })
+{
+
+    let dyn = useRef(<div></div>);
+
+    /* we set the width of the component, 
+     * We shouldn't use js and there should be a way to do this 
+     * without using js. 
+     */
+    useEffect(() =>
+    {
+        if (!dyn)
+        {
+            return;
+        }
+        let update = () => {
+
+            dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
+        }
+
+        window.addEventListener('resize', update)
+
+
+
+
+        dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
+
+        return _ => {
+            window.removeEventListener('resize', update)
+        }
     });
 
     return (
@@ -32,28 +122,35 @@ export function MButton({ children, ...props }) {
     );
 }
 
-export default function Mlink({ pclass, href, children, ...props }) {
+export default function Mlink({ pclass, href, children, ...props })
+{
 
     let dyn = useRef(<div></div>);
 
     /* we set the width of the component, 
      * We shouldn't use js and there should be a way to do this 
      * without using js. 
-     */ 
-    useEffect(() => {
-        if (!dyn) {
+     */
+    useEffect(() =>
+    {
+        if (!dyn)
+        {
             return;
         }
+        let update = () => {
 
-        dyn.onResize = () => {
             dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
-
-            console.debug(dyn.current);
         }
+
+        window.addEventListener('resize', update)
+
 
 
         dyn.current.style.setProperty('--end', dyn.current.offsetWidth + 20 + 'px');
 
+        return _ => {
+            window.removeEventListener('resize', update)
+        }
     });
 
     return (
