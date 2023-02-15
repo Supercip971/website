@@ -1,7 +1,7 @@
 import '../styles/globals.css'
 
 import { Inter } from '@next/font/google'
-
+import { Analytics} from "@vercel/analytics/react"
 
 const inter = Inter({
   weight: 'variable', subsets: ['latin'], fallbacks: true, fallback:
@@ -16,6 +16,7 @@ function MyApp({ Component, pageProps }) {
     <div className={inter.className} >
 
       <Component {...pageProps} />
+      <Analytics/>
     </div>
   </>
 }
