@@ -22,6 +22,7 @@
     "@react-three/drei": "^9.4.3",
     "@react-three/fiber": "^8.9.1",
     "@react-three/postprocessing": "^2.3.2",
+    "@vercel/analytics": "^0.1.9",
     "expo-asset": "^8.4.6",
     "glsl-noise": "^0.0.0",
     "glslify": "^7.1.1",
