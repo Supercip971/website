@@ -1,0 +1,835 @@
+---
+title: Coroutines in C
+seoTitle: The implementation of coroutines/fibers in C for Linux.
+description: How to implement coroutines (fibers) in the C programming language for Linux.
+isPublished: true
+publishedOn: "2023-02-11"
+modifiedOn: "2023-02-11"
+layout: Article
+slug: Hello
+socialImage: post/fibers.webp
+---
+
+> note: the article may contain errors, you have to keep in mind that it is a really barebone implementation of fibers, and the overview of 
+> coroutines is really basic. If you want to complete your research, you should read the sources at the end of the article.
+> If you find an error do not hesitate to make an issue or a pr to [github.com/supercip971/website](https://github.com/supercip971/website) ❤️
+
+
+> TLDR: if you like example code, or if you just want a plug'n'play library. You can find my fibers library here: [github.com/supercip971/fibres](https://github.com/supercip971/fibres)
+
+# What are coroutines/fibers?
+
+## What is a coroutine?
+
+In a programming language, a coroutine is a concurrency abstraction. 
+Generally, in an operating system, you have a lot of processes running concurrently. 
+The kernel has the ability to force a process to pause, it is responsible to save its context and then and switch to another process.
+This is called preemptive multitasking.
+
+
+But in a coroutine, the process is responsible to save its context and switch to another coroutine. The distinction is that 
+instead of being forced to pause at "random" times, the process can decide when to pause. This is called cooperative multitasking.
+
+![Preemptive multitasking is managed by the kernel, and cooperative multitasking is managed by the tasks themselves](/pic/coroutines/multitasking-types.svg)
+
+This means that in a code you could have :
+
+```c 
+
+void my_function()
+{
+    while(true)
+    {
+        printf("hello\n");
+        yield();
+    }
+}
+
+void my_otherfunction()
+{
+    while(true)
+    {
+        printf("world\n");
+        yield();
+    }
+}
+ 
+```
+
+And the output would be :
+
+```md
+[...]
+hello
+world
+hello
+world 
+hello
+world 
+[...]
+```
+
+The **yield** function is responsible to save the context of the current coroutine and switch to another one (in symmetric coroutines) or the caller (in asymmetric coroutines).
+The kernel is not responsible whatsoever to switch between coroutines, everything is done in userspace.
+
+## What is a fiber?
+
+A fiber is generally a coroutine, but it has its own scheduler. The scheduler is responsible to switch between fibers when they call the yield function. 
+
+The advantage of this scheduler is that you can have a blocking condition. It's like a kernel scheduler but in userspace.
+For example, if you have a fiber 'A' that needs to wait for 10 sec, the scheduler would switch to other fibers and select fibers only when 
+their blocking conditions are met.
+
+You could also have complex blocking conditions such as waiting for a network packet, a file to be writable, etc... 
+
+## But what are the advantages of coroutines/fibers?
+
+Fibers are generally used when you have a lot of concurrent tasks that are not CPU intensive. They can switch between tasks without having to go to the kernel, which is way faster. For example,
+if you have a lot of network tasks, you could use fibers to switch between them.
+
+Fibers are also used in game engines to have a lot of concurrent tasks. For example, if you have a game with a lot of entities, 
+you could use fibers to switch between them.
+
+Generally, in multithreading, you need to lock resources because you can't control when a thread is going to access it. 
+But with fibers, as you control the control flow with the yield function, you don't need to lock content.
+> (except if you have multiple thread using fibers).
+
+
+
+# How to implement coroutines/fibers in C?
+
+
+The implementation of fibers in C is not hard, it's divided into multiple parts: 
+
+- The context switching 
+- The fiber scheduler 
+
+You need a scheduler to select which fiber to use next, and a way to save the fiber.
+
+And in a CPU architecture, you can't just move the instruction pointer by just setting a new value.
+The CPU is storing temporary data in registers and you need to save them before 
+moving to somewhere else when you call `yield`.
+
+## The context  
+
+### Switching Context
+
+> Here we are going to use the x86_64 architecture with the system V ABI , but the same principle is used in other architectures and ABIs.
+
+This is the hardest part of the implementation of fibers. First, we need to know what we need to store and load when we switch context in the `yield` call.
+
+In general, each CPUs have registers, a stack and an instruction pointer.
+
+For short, The instruction pointer is used to tell where we execute code, the stack is used to save data across calls and registers are used to pass and manipulate data.
+
+
+This is true for x86 (64-bit), the architecture consists of 16 (64-bit) registers.
+
+-  `rax`, `rbx`, `rcx`, `rdx`, `rsi`, `rdi`,
+   `r8`, `r9`, `r10`, `r11`, `r12`, `r13`, `r14`, `r15`,
+  `rsp`, `rbp` (stack pointer and base pointer)
+
+But what about the stack?
+
+The stack is in memory, and the `rsp` register points to it. When you 
+want to use another stack, you just have to use another `rsp` value.
+So switching the stack is like switching a register:
+
+```c 
+    old_stack = rsp;
+    rsp = new_stack;
+```
+
+#### The ABIs 
+
+When you need to save the context, you could save all the registers, but it would be a waste of time. 
+The ABI (Application Binary Interface) is a set of rules that define how to call a function.
+An ABI is like a low-level standard that is used to tell how different parts of the code are communicating with each other (like when you call a function, how do we pass the arguments ? how do we return a value ? ...).
+There are multiple ABIs, but the most common is the System V ABI. (Windows use another one called the Microsoft ABI, if you need to implement fibers for windows, you should rework the code to support it).
+
+But what is important for us is that an ABI defines which registers are preserved and which are not during a call. 
+
+
+For example, if an ABI says that the `rax` register is not preserved, you don't need to save it when you switch contexts.
+Because the compiler will automatically save it when you call a function:
+
+```c 
+    save_to_stack(rax)
+    my_magic_function()
+    load_from_stack(rax)
+```
+
+Here saving rax in `my_magic_function` is useless, because the compiler will do it for you.
+
+ 
+
+In the SystemV ABI for AMD64 the preserved registers are:
+- `rbx`
+- `rbp`
+- `r12`-`r13`-`r14`-`r15`
+- `rsp`
+- `mxcsr`-`x86-CW` (they are special registers, we will talk about them later).
+ 
+And those are the only registers that you need to save when you switch contexts. 
+
+If we need to make a structure that represents the CPU context of a fiber we could do something like this:
+
+```c
+typedef struct 
+{
+    uint64_t rip; 
+
+    uint64_t rsp;
+    uint64_t rbx, rbp, r12, r13, r14, r15;
+  
+    uint32_t mxcsr; 
+    uint32_t x86_fcw;
+} FiberCtx;
+```
+
+But what is this `rip` register? It's the instruction pointer.
+The way to load and save it is harder than loading other registers.
+We will talk about it when we will implement the switch function.
+
+
+Imagine a function `switch_context` that takes two arguments:
+
+```c
+extern "C" void switch_context(FiberCtx* old_context, FiberCtx* new_context);
+```
+
+The function `switch_context` will save the current context in `old_context` and load the context in `new_context`. And run the `new_context` code.
+
+For this, we are going to implement the function with assembly.
+Hold on! I know that assembly may be hard, but I will try to explain it as much as I can.
+
+
+#### The Implementation of the context switching
+
+> Note: I'm using nasm syntax, but you can use any other syntax you want. 
+
+First, we are going to use a neat feature of NASM: `structs`. It may be used for representing structs in memory, like structs in C.
+
+
+```asm
+struc fibers_ctx
+    .ip: resq 1
+    .sp: resq 1
+    .rbx: resq 1
+    .rbp: resq 1
+    .r12: resq 1
+    .r13: resq 1
+    .r14: resq 1
+    .r15: resq 1
+    .mxcsr: resq 1
+    .x86_fcw: resq 1
+endstruc
+```
+If you see this, it's the same as the C struct we defined before.
+Each time we have a `resq` that means that it is a `uint64_t` (8 bytes) in memory.
+
+Then we implement the function `switch_context`.
+
+When we call the function `switch_context`, the first argument will always be stored in `rdi` and the second argument in `rsi`.
+
+That's how we will read and write values in `FiberCtx* old_context` and `FiberCtx* new_context`.
+
+
+##### Saving general-purpose registers
+
+When we want to store a value in a register, we use the `mov` instruction.
+
+If we want to set the attribute `rbx` of `FiberCtx` to `0x1234567890`, we can do it like this:
+
+```asm
+    mov [rdi + fibers_ctx.rbx]  , 0x1234567890 ; from->rbx = 0x1234567890
+```
+
+Here the `mov` instruction will store the value `0x1234567890` in the memory address `rdi + fibers_ctx.rbx`.
+
+We use the `[` and `]` to tell that we are using a memory address. It's like dereferencing a pointer in C.
+
+The `rdi` register is the first argument of the function, so it's the address of `old_context`, we also add the 
+offset of the `fibers_ctx.rbx` to access the attribute.
+
+We need to do it for each register we want to save, it should look like this:
+
+```asm
+
+global fibers_switch
+fibers_switch:
+    ; SAVING 
+    mov [rdi + fibers_ctx.rbx]  , rbx ; from->rbx = rbx
+    mov [rdi + fibers_ctx.rbp]  , rbp ; from->rbp = rbp
+    mov [rdi + fibers_ctx.r12]  , r12 ; from->r12 = r12 
+    mov [rdi + fibers_ctx.r13]  , r13 ; from->r13 = r13
+    mov [rdi + fibers_ctx.r14]  , r14 ; from->r14 = r14 
+    mov [rdi + fibers_ctx.r15]  , r15 ; from->r15 = r15 
+```
+
+For loading registers, we do the same thing but in the other direction.
+We also use the `rsi` register instead of `rdi`, because it's the second argument of the function.
+We want to use `new_context` instead of `old_context`.
+
+```asm
+    ; LOADING
+    mov rbx, [rsi + fibers_ctx.rbx] ; rbx = to->rbx
+    mov rbp, [rsi + fibers_ctx.rbp] ; rbp = to->rbp
+    mov r12, [rsi + fibers_ctx.r12] ; r12 = to->r12
+    mov r13, [rsi + fibers_ctx.r13] ; r13 = to->r13
+    mov r14, [rsi + fibers_ctx.r14] ; r14 = to->r14
+    mov r15, [rsi + fibers_ctx.r15] ; r15 = to->r15
+```
+
+##### Saving the `rip` and `rsp` registers
+That's great, but we still have the `rip` and `rsp` registers to save and load, how do we do that?
+
+We can't use the same method as before, because it's a little bit more complicated.
+
+Before we can load the `rip` and `rsp` registers, we need to understand how the calling of a function is represented in the stack.
+
+If we call a function `foo`: `foo()`, the CPU will automatically push the `rip` and `rsp` registers on the stack.
+It's used to know where to return when the function is done, and to know where to store the return value.
+
+It should look like this:
+| Value |
+| ---|
+| rsp + 0 `rsp` (current stack top) |
+| rsp + 8 `rip` (return address) |
+
+Or: 
+
+![Drawing of the table in a beautifull picture](/pic/coroutines/stack.svg)
+
+> Note: we need to remember that the stack grows downwards, so, for accessing the last pushed value, we need to add the offset to the stack top.
+
+Using this we can manipulate the `rip` value.
+
+That mean that `rip` is `[rsp + 8]`.
+```asm
+    ; SAVING
+    mov r8, [rsp + 8] ; r8 = [rsp + 8] (rip)
+    mov [rdi + fibers_ctx.rip]  , r8 ; from->rip = rsp[]
+```
+
+> We need to store in the temporary register `r8` because in x86 we can't read and write memory in the same mov.
+
+For the `rsp` register, we need to store the value of `rsp` in the `rsp` attribute of `FiberCtx`.
+
+But, if we look at the stack, we will see that the `rsp` register was already modified during the call of the assembly code.
+(Because the `call` induced a push of the `rip` register).
+
+That mean that if we want to find the original value of the `rsp` register, we need to add 8 to the current value of `rsp`.
+
+```asm
+    ; SAVING
+    mov r8, rsp ; r8 = rsp
+    add r8, 8 ; r8 = rsp + 8
+    mov [rdi + fibers_ctx.rsp]  , r8 ; from->rsp = rsp + 8
+```
+
+
+----
+
+But for loading, it's also a little bit different.
+
+We saw that when we are calling a function we push the return address. That's why we need to add 8 to the value of `rsp` to get the original value of `rsp`.
+
+When we call the `ret` instruction, it will pop the top value of the stack and it will use it as the `rip` register.
+
+So, for writing `rip` we need to push the value, then we need to call `ret`.
+
+That means that we are going to set the value of `rsp`, then push the value of `rip` on the stack for the `ret` instruction.
+
+If you don't understand, here is what the stack looks like during the code execution:
+
+![stack before ret](/pic/coroutines/stack2.svg)
+
+```asm
+    ; LOADING
+
+    mov rsp, [rsi + fibers_ctx.sp] ; rsp = to->sp
+[1]
+    mov r8, [rsi + fibers_ctx.rip] ; r8 = to->rip
+    push r8 ; push to->rip
+[2]
+    ret
+[3]
+```
+
+
+
+For loading the `rsp` register, we do not need to add 8 to the value of `rsp`: 
+
+```asm
+    ; LOADING
+    mov rsp, [rsi + fibers_ctx.sp] ; rsp = to->sp
+```
+
+
+For loading the `rip` register, we need to push the value of `rip` on the stack, then call `ret`:
+```asm
+    ; LOADING
+    mov r8, [rsi + fibers_ctx.rip] ; r8 = to->rip
+    push r8 ; push to->rip
+    ret
+```
+
+##### Saving the `mxcsr` and `fcw` registers
+That's it, we have now a working switching of context between two fibers !
+
+But hold on, we still have a problem, if you try to use any float value, you may get something wrong.
+That's because the CPU also needs to save and load the floating point context.
+
+For that, we need to save the `mxcsr` and `fcw` registers.
+
+They are used to store the floating point context and status (like rounding mode, flag...). They are different than general purpose registers, 
+that's why they have special instructions to load and save them.
+
+They are both using: 
+- `stmxcsr` to save the value of the `mxcsr` register in memory
+- `ldmxcsr` to load the value of the `mxcsr` register from memory
+- `fnstcw` to save the value of the `fcw` register in memory
+- `fldcw` to load the value of the `fcw` register from memory
+
+But in the end, you should have something like this: 
+
+```asm
+    ; SAVING
+    stmxcsr [rdi + fibers_ctx.mxcsr] ; from->mxcsr = mxcsr
+    fnstcw [rdi + fibers_ctx.fcw] ; from->fcw = fcw
+```
+
+and: 
+
+```asm
+    ; LOADING
+    ldmxcsr [rsi + fibers_ctx.mxcsr] ; mxcsr = to->mxcsr
+    fldcw [rsi + fibers_ctx.fcw] ; fcw = to->fcw
+```
+
+##### The final code
+
+That's it, you now have a working fiber system that can switch between fibers! 
+It's the hardest part of the project, and in the end, the assembly file should look like this: 
+
+```asm 
+struc fibers_ctx
+    .ip: resq 1
+    .sp: resq 1
+    .rbx: resq 1
+    .rbp: resq 1
+    .r12: resq 1
+    .r13: resq 1
+    .r14: resq 1
+    .r15: resq 1
+    .mxcsr: resq 1
+    .x86_fcw: resq 1
+endstruc
+
+global fibers_switch
+fibers_switch:
+    ; SAVING 
+    mov r8, rsp 
+    add r8, 8
+    mov [rdi + fibers_ctx.sp] , r8 ; from->ip = rsp
+
+    mov r8, [rsp] ; r8 = rsp + 8 (return address)
+    mov [rdi+ fibers_ctx.ip], r8 ; from->sp = rsp + 8
+
+
+    mov [rdi + fibers_ctx.rbx]  , rbx ; from->rbx = rbx
+    mov [rdi + fibers_ctx.rbp]  , rbp ; from->rbp = rbp
+    mov [rdi + fibers_ctx.r12]  , r12 ; from->r12 = r12 
+    mov [rdi + fibers_ctx.r13]  , r13 ; from->r13 = r13
+    mov [rdi + fibers_ctx.r14]  , r14 ; from->r14 = r14 
+    mov [rdi + fibers_ctx.r15]  , r15 ; from->r15 = r15 
+
+    stmxcsr [rdi + fibers_ctx.mxcsr] ; from->mxcsr = mxcsr
+    fnstcw  [rdi + fibers_ctx.x86_fcw] ; from->x86_fcw = x86_fcw
+
+    ; LOADING
+
+    mov rbx, [rsi + fibers_ctx.rbx] ; rbx = to->rbx
+    mov rbp, [rsi + fibers_ctx.rbp] ; rbp = to->rbp
+    mov r12, [rsi + fibers_ctx.r12] ; r12 = to->r12
+    mov r13, [rsi + fibers_ctx.r13] ; r13 = to->r13 
+    mov r14, [rsi + fibers_ctx.r14] ; r14 = to->r14 
+    mov r15, [rsi + fibers_ctx.r15] ; r15 = to->r15
+
+    ldmxcsr  [rsi + fibers_ctx.mxcsr] ; mxcsr = to->mxcsr
+    fldcw    [rsi + fibers_ctx.x86_fcw] ; x86_fcw = to->x86_fcw
+
+    mov rsp, [rsi + fibers_ctx.sp] ; rsp = to->sp
+    mov r8,  [rsi + fibers_ctx.ip] ; r8 = to->ip
+    push r8 ; stack[] = to->ip 
+    ret ; ip = stack[]
+```
+
+
+## The scheduler 
+
+Now that we have a working way of switching between fibers, we need to make a scheduler.
+A scheduler in software is a component that will manage the order in which tasks are executed.
+
+But before that, we need to define what a fiber is in our code.
+
+### The Fiber struct  
+
+First, we need to characterize a fiber, a fiber has:
+- a context (the `FiberCtx` struct)
+- a stack
+- a state (running, waiting...)
+- and a piece of code to execute.
+- A unique ID (like a PID but for fibers).
+
+#### The different states of a fiber
+
+First, we need to define which states a fiber can have:
+
+- `FIBER_STATE_DEAD` : The fiber is dead, it can be deleted.
+- `FIBER_STATE_FREE` : The fiber is free, it can be reused for another fiber.
+- `FIBER_STATE_RUNNING` : The fiber is running 
+- `FIBER_STATE_WAITING` : The fiber is waiting for something to happen (like a mutex, a condition variable, a fiber to end...)
+- `FIBER_STATE_IDLE`: The fiber is idle, it's only selected when nothing else is running.
+
+> Note: when a fiber is running, it doesn't mean that it's currently being executed, it means that the scheduler can select it.
+
+We can use those states to know if a fiber is free or not and if it's waiting for something or not.
+It should be defined in an enum, or by using macros. 
+
+Now that we have a way to describe the different states of fiber, we need to represent it in our code: 
+
+#### The fiber struct
+
+As we said before, a fiber has a context, a stack, a state, and a function to execute.
+
+We also need to store its arguments and a unique id.
+```c
+typedef int FiberID;
+struct Fiber {
+    uint8_t* stack;
+    FiberCtx ctx;
+
+    void * args;
+    FiberState state;
+
+    FiberFn func;
+    FiberID id;
+};
+```
+
+We may add more attributes to the fiber struct, but for now, this is enough.
+Now that we have a struct, we can make a way to allocate and free them.
+
+### Utility functions 
+
+Before doing a scheduler, we need to make some utility functions that will be used by the scheduler, and by the user.
+
+#### The fiber allocator
+
+First, we are going to store all our fibers in a vector.
+This vector will be used when we need to schedule and when we need to create a new fiber: 
+
+```c
+vec_t(Fiber*) fiber_table = {};
+
+FiberID next_fiber_uid = 0;
+```
+
+> Note: the vector is from the [rxi/vec](https://github.com/rxi/vec) library.
+
+We also add a variable that will be used to give a unique id to each fiber (we increase it each time we create a new fiber).
+
+So for allocating a new fiber: 
+
+- First, we check if there is a fiber that is free in the table, if there is, we return it.
+- If there is no free fiber, we allocate a new one and add it to the fiber table.
+
+```c
+static Fiber* fiber_alloc(void)
+{
+    for(int i = 0; i < fiber_table.length; i++)
+    {
+        if(fiber_table.data[i]->state == FIBER_STATE_FREE)
+        {
+            Fiber* c = fiber_table.data[i];
+            return c;
+        }
+    }
+    Fiber* f = malloc(sizeof(Fiber));
+
+    *f = (Fiber){};
+
+    vec_push(&fiber_table, f); 
+    return f;
+}
+```
+
+> Note: the fiber alloc is like a malloc function, it's not responsible for initializing the fiber, it's just responsible for allocating it.
+ 
+#### Initializing the table when needed
+
+We need to initialize the fiber table when we need to use it. 
+This means that we also need to transform the current thread into a fiber. 
+Because, if we don't, when we switch to a fiber we will never be able to return
+to the main function, it will never be saved to a fiber.
+
+To solve this problem, we allocate a new fiber and treat it like it was always there.
+
+```c
+
+static void make_current_as_fiber()
+{
+
+    Fiber* fiber = fiber_alloc();
+    fiber->state = FIBER_STATE_RUNNING;
+    fiber->id = 0; // the main thread is fiber 0
+    next_fiber_uid++;
+}
+
+static void fiber_init_if_needed(void) 
+{
+    if(fiber_table.data == NULL)
+    {
+        vec_init(&fiber_table);
+        make_current_as_fiber();
+    }
+}
+```
+#### Getting the currently running fiber
+
+We need a way to get the current fiber, so we can know which fiber is currently running when we try to switch to another one. 
+
+For that, we are storing the currently running Fiber offset in the `fiber_table` in a global variable. 
+
+```c
+static int fiber_current_table_id = 0;
+```
+
+We can then get the current fiber by doing: 
+
+```c
+Fiber* fiber_self(void)
+{
+    fiber_init_if_needed(); // make sure the fiber table is initialized
+    return fiber_table.data[fiber_current_table_id];
+}
+```
+
+There is also the necessity to change the `make_current_as_fiber` function to set the `fiber_current_table_id` to the current
+running fiber id: 
+
+```c
+static void make_current_as_fiber()
+{
+    // [...]
+    fiber_current_table_id = fiber->id;
+}
+```
+
+#### Getting a fiber from its id
+
+This will be used by the scheduler, and by the user to get a fiber from its id. 
+
+```c
+Fiber* get_fiber(FiberID id) 
+{
+    for(int i = 0; i < fiber_table.length; i++)
+    {
+        if(fiber_table.data[i]->id == id)
+        {
+            return fiber_table.data[i];
+        }
+    }
+    return NULL;
+}
+```
+
+
+### Creating a fiber
+
+Now that we have some utility functions, we can start creating a fiber.
+
+First, we allocate a new fiber and initialize it:
+- We set its state to `FIBER_STATE_RUNNING`.
+- We set its member's value like its function and its arguments.
+- We allocate a stack for the fiber.
+    + Generally, you want a stack that is at least `4096` bytes, but in some cases, it's better to have a bigger stack. In my case, I used `8192` bytes.
+- We put the `next_fiber_uid` as the fiber id. Then we increase the global variable by one.
+```c
+static FiberID fiber_launch_impl(FiberFn func, void* args)
+{
+
+    Fiber* fiber = fiber_alloc();
+
+    void* stack_pointer = malloc(FIBER_STACK_SIZE);
+    *fiber = (Fiber){
+        .func = func, 
+        .args = args, 
+        .stack = stack_pointer, 
+        .state = FIBER_STATE_RUNNING,
+        .id = next_fiber_uid
+    };
+```
+
+Then you need to initialize the fiber context: 
+
+- The stack pointer is at the top of the stack, so we need to set the stack pointer to the end of the stack. That's why we add the `FIBER_STACK_SIZE` to the pointer. (Because CPUs stacks are growing downwards).
+- You also need to set the base pointer (`rbp`) to the end of the stack.
+- The `mxcsr` and `x86_fcw` should be set to their default value at reset.
+  + `mxcsr` is the x86 control and status register it should be set to `0x1F80` at reset.
+  + `x86_fcw` is the x86 control word it should be set to `0x37F` at reset.
+- And for last you need to set the instruction pointer (`rip`) to a wrapper function that we will call `_fiber_entry`.
+
+> If you want to know more about the mxcsr and x86_fcw, you can read the intel manual volume 1 - 11.6.4 and 8.1.5.
+> It's just bits flipped to their default value.
+
+But why do we use `_fiber_entry` for the instruction pointer? and not the `function` directly?
+
+It's because there is the necessity to set up and clean up the fiber state, and `_fiber_entry` would be responsible for that. 
+You also have this sort of wrapper function for the `main` function in C. Generally it's called `_entry` and it's responsible for calling the `main` function and cleaning up the state of the program.
+
+```c
+    fiber->ctx = (FiberCtx) {
+        .rsp = (uintptr_t)stack_pointer + FIBER_STACK_SIZE,
+        .rbp = (uintptr_t)stack_pointer + FIBER_STACK_SIZE,
+        .rip = (uintptr_t)_fiber_entry,
+        .mxcsr = 0x1F80, // default mxcsr value at reset (see intel manual volume 1 - 11.6.4)
+        .x86_fcw = 0x37F // default x86_fcw value at reset (see intel manual volume 1 - 8.1.5)
+    };
+```
+
+In the end, you should have a function that looks like this:
+```c
+static FiberID fiber_launch_impl(FiberFn func, void* args)
+{
+
+    Fiber* fiber = fiber_alloc();
+
+    void* stack_pointer = malloc(FIBER_STACK_SIZE);
+    *fiber = (Fiber){
+        .func = func, 
+        .args = args, 
+        .stack = stack_pointer, 
+        .state = FIBER_STATE_RUNNING,
+        .id = next_fiber_uid
+    };
+    fiber->ctx = (FiberCtx) {
+        .rsp = (uintptr_t)stack_pointer + FIBER_STACK_SIZE,
+        .rbp = (uintptr_t)stack_pointer + FIBER_STACK_SIZE,
+        .rip = (uintptr_t)_fiber_entry,
+        .mxcsr = 0x1F80, // default mxcsr value at reset (intel manual volume 1 - 11.6.4)
+        .x86_fcw = 0x37F, // default x86 control word at reset (intel manual volume 1 - 8.1.5)
+    };
+
+    next_fiber_uid++;
+
+    return fiber->id;
+}
+```
+
+The `_fiber_entry` function is responsible for calling the fiber function and cleaning up the fiber state. 
+For now, it's just a simple function that calls the fiber function and set the fiber state to `FIBER_STATE_DEAD`. But later, we will add more stuff to it.
+
+```c
+static void _fiber_entry(void)
+{
+    Fiber* fiber = fiber_table.data[fiber_current_table_id];
+    fiber->func(fiber->args);
+
+    fiber->state = FIBER_STATE_DEAD;
+    yield();
+}
+```
+
+> Note: you'll se later why we need to set the fiber state to `FIBER_STATE_DEAD` and not `FIBER_STATE_FREE`.
+
+### The scheduler
+
+The scheduler is responsible for switching between fibers, but also for selecting which fiber to switch to.
+
+We will implement a round-robin scheduler, that will select which fiber is the next fiber to run.
+A round-robin is a scheduling algorithm that will switch between fibers in a circular fashion.
+That means that the next fiber will be the one after the current fiber in the fiber table, and if the current fiber is the last one, the next fiber will be the first one.
+There is no concept of priority in a round-robin scheduler, so it's not the best scheduling algorithm, but it's simple to implement and it's good enough for our use case. Some scheduling algorithms are more efficient, but they are generally more complex to implement, and some of them are too complex for the intended use of fibers (which may be to rapidly switch between tasks).
+
+#### Find the next fiber to run
+
+So now, we need a function that, with a fiber id, will return the next fiber to run.
+
+Our algorithm will work as follow: 
+- let `start_from` be the table index of the current fiber.
+- Search through `start_from` to the end of the fiber table for a fiber that is in the `FIBER_STATE_RUNNING` state.
+- If we didn't find any fiber, retry but this time searches from the beginning of the fiber table.
+- If we didn't find any fiber, return `-1`.
+
+```c
+static int fiber_next( int start_from)
+{
+    for(int i = start_from; i < fiber_table.length; i++)
+    {
+        if(fiber_table.data[i]->state == FIBER_STATE_RUNNING)
+        {
+            return i;
+        }
+    }
+    
+    // we looped through all the fibers from start_from to the end of the fiber table
+    if(start_from == 0)
+    {
+        return -1;
+    }
+    // retry from the beginning of the fiber table
+    return fiber_next(0);
+}
+```
+
+#### Switching between fibers
+
+Now that we have a function that will return the next fiber to run, we need to switch between fibers.
+We will implement the `yield` function.
+This function will link the scheduler and the fiber switching function:
+
+```c
+void yield(void)
+{
+    Fiber* previous = fiber_self();
+    int next_id = fiber_next(fiber_current_table_id+1);
+    Fiber* next = fiber_table.data[next_id];
+    
+    // no need to switch context if we are already on the next fiber
+    if(previous == next)
+    {
+        return; 
+    }
+
+    fiber_current_table_id = next_id;
+    fibers_switch(&previous->ctx, &next->ctx);
+}
+```
+
+> Note: You may spot issues with this function, and you are right, there are issues with this function.
+> And we will address them later.
+
+
+And that's it for this part, you should now have a working fiber library that can create fibers and switch between them.
+
+
+In the next part, we will implement a way to have a way to block fiber, we will fix issues (such as some memory leaks), a way to join fibers and much more!
+
+That's one of the biggest articles I've written, It may be a bit too long, but I wanted to make sure that it was clear enough for everyone.
+I hope you enjoyed it, and I hope you learned something new! Have a great day!
+
+> Note: If you want to see the full code, you can find it on [github](https://github.com/Supercip971/fibres). It's finalized, so if you can't wait for the next part (or if I'm too slow), you can check it out.
+
+
+# Sources/Go further 
+
+- [Distinguishing coroutines and fibers (c++ standard paper)](https://www.open-std.org/jtc1/sc22/wg21/docs/papers/2014/n4024.pdf)
+- [Revisiting coroutines (definition of asymmetric/symmetric coroutines)](http://www.inf.puc-rio.br/~roberto/docs/MCC15-04.pdf)
+- [Felix cloutier x86 instruction reference](https://www.felixcloutier.com/x86/)
+- [Osdev: Scheduling algorithms](https://wiki.osdev.org/Scheduling_Algorithms)
+- [Intel manual volume 1](https://www.intel.com/content/dam/www/public/us/en/documents/manuals/64-ia-32-architectures-software-developer-vol-1-manual.pdf)
+- [Brutal fibers implementations](https://github.com/brutal-org/brutal)
+- [Rxi/vec](https://github.com/rxi/vec)

@@ -35,16 +35,36 @@ const components = {
         </Mlink>),
     img: (props) => <img {...props} />,
     h1: (props) => (
-        <h1 className="btitle text-4xl font-black  text-white" {...props}></h1>
+        <h1 className="mt-8 btitle text-4xl font-black  text-white" {...props}>
+        </h1>
+
     ),
     h2: (props) => (
-        <h2 className=" text-3xl font-black  text-current" {...props}></h2>
+        <h2 className="mt-8  text-3xl font-black  text-current" {...props}>
+        </h2>
+
     ),
     h3: (props) => (
-        <h3 className="text-2xl font-extrabold py-4 text-current" {...props}></h3>
+        <h3 className="mt-8 text-2xl font-extrabold py-4 text-current" {...props}>
+        </h3>
+
     ),
     h4: (props) => (
-        <h4 className="text-xl font-extrabold py-4 text-current" {...props}></h4>
+        <h4 className="mt-8 text-xl font-extrabold py-4 text-current" {...props}>
+        </h4>
+
+    ),
+
+    h5: (props) => (
+        <h4 className="mt-8 text-lg font-extrabold py-4 text-current" {...props}>
+        </h4>
+
+    ),
+
+    h6: (props) => (
+        <h4 className="mt-8 text-lg font-extrabold py-4 text-current" {...props}>
+        </h4>
+
     ),
     p: (props) => <p className=" text-base py-2 text-current" {...props}></p>,
     th: (props) => (
@@ -81,7 +101,7 @@ const components = {
     code: code_impl,
     ul: (props) => (
         <ul
-            className="list-disc text-base text-current list-inside"
+            className="ml-8 list-disc text-base text-current list-inside"
             {...props}
         ></ul>
     ),

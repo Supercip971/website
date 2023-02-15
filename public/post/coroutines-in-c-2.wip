@@ -1,0 +1,49 @@
+
+### Joining them together 
+
+It may be simple, but it is not, if you want to make any fiber wait for other ones there is a lot of things to take into account.
+
+You may ask: you have a blocker system, why not have a function that keep the fiber and check if it's in the DEAD state ? Such as: 
+
+```c 
+
+void fiber_join_blocker(Fiber* f)
+{
+    return f->state == FIBER_STATE_DEAD;
+}
+```
+
+
+But there is an issue: 
+
+Let's make the assumption that we have 4 fibers: 
+
+- Fiber A : create B 
+- Fiber B : create c
+- Fiber A : wait for B to end
+- Fiber B : is ended 
+- Fiber C : create a new fiber (here is the issue)
+- Fiber A : would never find the old fiber B because it was deleted and replaced with the fiber created by C.
+
+What if the fiber is deleted before the fiber that is waiting for it ?
+The issue is that we don't know if a fiber is being waited for or not when you allocate a new one (see `fiber_alloc`).
+And then, you can't access the return value. 
+
+But what if we added a new flag in the fiber ? A flag that would tell us if the fiber is being waited for or not. 
+
+```c
+typedef struct Fiber 
+{
+    // [...]
+    bool being_waited; 
+    // [...]
+} Fiber; 
+```
+
+But this introduce a new issue, what if the fiber is being waited for by multiple fibers ?
+Wich one should remove the 'being_waited_flag' ? 
+
+This is why we should use a counter instead. Each time a new fiber waits for another one, the counter increase. And the fiber 
+is being freed only when the counter is equal to 0. 
+
+
