@@ -30,7 +30,8 @@ This is called preemptive multitasking.
 But in a coroutine, the process is responsible to save its context and switch to another coroutine. The distinction is that 
 instead of being forced to pause at "random" times, the process can decide when to pause. This is called cooperative multitasking.
 
-![Preemptive multitasking is managed by the kernel, and cooperative multitasking is managed by the tasks themselves](/pic/coroutines/multitasking-types.svg)
+<Image src="/pic/coroutines/multitasking-types.svg" alt="Preemptive multitasking is managed by the kernel, and cooperative multitasking is managed by the tasks themselves" width="678" height="554" />
+
 
 This means that in a code you could have :
 
@@ -299,7 +300,7 @@ It should look like this:
 
 Or: 
 
-![Drawing of the table in a beautifull picture](/pic/coroutines/stack.svg)
+<Image src="/pic/coroutines/stack.svg" alt="Representation of the stack after the call (equivalent of the table)" width="678" height="290" />
 
 > Note: we need to remember that the stack grows downwards, so, for accessing the last pushed value, we need to add the offset to the stack top.
 
@@ -343,7 +344,7 @@ That means that we are going to set the value of `rsp`, then push the value of `
 
 If you don't understand, here is what the stack looks like during the code execution:
 
-![stack before ret](/pic/coroutines/stack2.svg)
+<Image src="/pic/coroutines/stack2.svg" alt="Representation of the stack during the assembly code" width="951" height="290" />
 
 ```asm
     ; LOADING

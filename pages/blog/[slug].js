@@ -33,7 +33,8 @@ const components = {
     a: (props) => (
         <Mlink {...props}>
         </Mlink>),
-    img: (props) => <img {...props} />,
+    img: (props) => <h1 className="btitle text-black bg-red-500">Fix your shit</h1>,
+    Image: (props) => <Image {...props} />,
     h1: (props) => (
         <h1 className="mt-8 btitle text-4xl font-black  text-white" {...props}>
         </h1>
