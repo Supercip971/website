@@ -51,9 +51,10 @@ body {
     @apply font-bold;
     @apply h-fit;
 
+    --end: 0px;
     cursor: pointer;
     box-shadow: inset 0 0 0 0 #fff;
-    transition: color .3s ease-out, box-shadow .3s ease-out;
+    transition: color .1s ease-out, box-shadow .3s ease-out;
 
     margin: 0 0.5rem;
     padding: 0 0.25rem;
@@ -64,20 +65,21 @@ body {
   .button:hover {
 
 
-    box-shadow: inset 200px 0 0 0 rgb(14 165 233 / var(--tw-text-opacity));
-    color: white;
+  
+    box-shadow: inset var(--end) 0 0 0 rgb(14 165 233 / var(--tw-text-opacity));
+     color: white;
 
   }
 
   .link {
-    white-space: nowrap;
+    overflow-wrap: break-word;
     @apply text-sky-500;
     @apply no-underline;
 
     @apply font-bold;
     @apply h-fit;
 
-
+    box-decoration-break:clone;
     --end: 0px;
     cursor: pointer;
     box-shadow: inset 0 0 0 0 #fff;
