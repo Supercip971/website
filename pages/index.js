@@ -1,9 +1,14 @@
-import Computer from "../components/common/computer";
 import { BottomBar } from "../components/common/bottom";
 import Head from "next/head";
 import Mlink from "../components/common/link";
 import Image from "next/image";
 import Handwritten from "../components/text/handwritten";
+import dynamic from 'next/dynamic'
+
+const Computer = dynamic(() => import('../components/common/computer'), { 
+    loading: () => <p>Loading...</p>,  
+    ssr: false
+})
 export default function Home() {
      
     return (
