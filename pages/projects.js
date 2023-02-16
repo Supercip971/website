@@ -192,7 +192,7 @@ export default function Projects() {
                     </h2>
 
                     <div className="flex flex-wrap flex-row  p-8  mx-auto justify-around  items-stretch  ">
-                        <SProject title={"pico-emu"} link={"github.com"}>
+                        <SProject title={"pico-emu"} link={"https://github.com/Supercip971/pico-emu"}>
                             A WIP hobby raspberry pi pico emulator.
                         </SProject>
                         <SProject title={"obsidian typing speed"} link={"https://github.com/Supercip971/obsidian-typing-speed"}>
