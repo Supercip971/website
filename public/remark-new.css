@@ -1,0 +1,103 @@
+@import url("https://remark42.cyp.sh/web-orig/remark.css");
+
+
+:root{
+    
+    --color0: #0f172a;
+    --color8: #262626;
+    --color22: #2d2d2c;
+    --color24: #313133;
+    --color7: #333;
+    --color23: #393734;
+    --color18: #383838;
+    --color19: #404040;
+    --color36: #575757;
+    --color34: #555;
+    --color37: #586069;
+    --color14: #6a6a6a;
+    --color10: #777;
+    --color13: #888;
+    --color11: #969696;
+    --color32: #a6a6a6;
+    --color1: #aaa;
+    --color35: #d1d5db;
+    --color20: #ddd;
+    --color46: rgba(27,31,35,.15);
+    --color45: rgba(0,0,0,.1);
+    --color41: #efefef;
+    --color5: #fff;
+    --color44: hsla(0,0%,100%,.3);
+    --color6: #fff;
+    --color3: #e2efef;
+    --color4: #edf6f7;
+    --color16: #e2e8f0;
+    --color31: #cbd5e1;
+    --color21: #f1f5f9;
+    --color29: #0ea5e9;
+    --color9: #0ea5e9;
+    --color15: #0ea5e9;
+    --color33: #0ea5e9;
+    --color40: #38bdf8;
+    --color43: #7dd3fc;
+    --color42: #7dd3fc;
+    --color48: #7dd3fca0;
+    --color47: #7dd3fc40;
+    --color28: #672323;
+    --color25: #9a0000;
+    --color38: #ef0000;
+    --color27: #f98989;
+    --color26: #ffd7d7;
+    --color30: 204,6,6;
+    --color12: 37,158,6;
+    --chroma-bg: rgba(0,0,0,.05);
+    --chroma-base: #586e75;
+    --chroma-c: #7d7d7d;
+    --chroma-01: #589000;
+    --chroma-02: #cb4b16;
+    --chroma-03: #268bd2;
+    --chroma-04: #2aa198;
+    --chroma-05: #859900;
+    --chroma-06: #d33682;
+    --chroma-07: #00aee2;
+    --primary-color: 56, 189, 248;
+    --primary-brighter-color: 125,211,252;
+    --primary-darker-color: 14, 165, 233;
+    --primary-text-color: 38,38,38;
+    --secondary-text-color: 100,116,139;
+    --secondary-darker-text-color: 150,150,150;
+    --primary-background-color: 255,255,255;
+    --black-color: 0,0,0;
+    --white-color: 255,255,255;
+    --error-color: #b91c1c;
+    --error-background: rgba(255,70,111,.169);
+    --line-color: var(--color16);
+    --line-brighter-color: var(--color31);
+    --text-color: var(--black-color);
+    --transparent: transparent;
+}
+
+.comment-form__field {
+
+    border: black;
+    border-width: 2px;
+    border-style: solid;
+}
+
+.comment-form__field:focus {
+
+    border: #38bdf8 ;
+    border-width: 2px;
+    border-style: solid;
+}
+.comment-form__toolbar-icon {
+    color: black;
+}
+.comment-form__toolbar-icon :hover {
+    color: #38bdf8;
+}
+* {
+    border-radius: 0px;
+
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
+    Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+}

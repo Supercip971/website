@@ -10,11 +10,13 @@ import { TopBar } from "../../components/common/top";
 import { MDXRemote } from "next-mdx-remote";
 import remarkGfm from "remark-gfm";
 import SyntaxHighlighter from "react-syntax-highlighter";
-
 import Head from "next/head";
 import Mlink from "../../components/common/link";
+import { useEffect, useRef, useState } from "react";
+import CPart from "../../components/common/comment";
 
-function code_impl({ className, ...props }) {
+function code_impl({ className, ...props })
+{
     const match = /language-(\w+)/.exec(className || "");
     return match ? (
         <SyntaxHighlighter
@@ -181,9 +183,16 @@ export default function Post({ front, slug, mdx, source })
             </div>
 
             <div className=" bg-white text-white flex flex-col lg:flex-row min-h-[50vh] pt-16 py-8 w-full px-8 z-2 " id="content">
-                <main className="m-auto max-w-prose w-full text-black   " >
+     
+               <main className="m-auto max-w-prose w-full text-black grow   ">
                     <MDXRemote {...mdx} components={components} lazy />
+
+                    <div className="py-8 ">
+                        <CPart/> 
+                    </div>
                 </main>
+
+
             </div>
 
             <BottomBar className="text-white flex flex-raw m-auto p-8 bg-black" />
