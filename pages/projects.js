@@ -114,9 +114,9 @@ export default function Projects() {
             </div>
 
             <div className=" md:p-0 bg-white min-h-[100vh] w-full m-auto  ">
-                <Project title={"fcompute"} image="/pic/compute-ray-bg-2.png" id={0}>
+                <Project title={"Rubis"} image="/pic/rubis-bg-3.webp" id={0}>
                     A current rewrite of my 'plume' pathtracer (that you can see <Mlink href="#1"> below</Mlink>).
-                    It's a compute shader based raytracer written in C with vulkan from scratch.
+                    It's a pathtracer written in C with Vulkan from scratch. It uses the GPU for fast and complex scene rendering.
                     It supports GLTF loading, BSDF materials and much more...
 
 
@@ -130,7 +130,7 @@ export default function Projects() {
                 </Project>
 
 
-                <Project title={plumeLogo} image="/pic/plumeray.png" id={1}>
+                <Project title={plumeLogo} image="/pic/plumeray.webp" id={1}>
                     An open source cpu pathtracer written in C from scratch. It's aimed at being fast and simple. It is currently being reworked to be replaced by the <Mlink href="#0">compute shader</Mlink> version.
 
                     <nav className="w-full flex flex-row justify-around py-4">
@@ -139,7 +139,7 @@ export default function Projects() {
                 </Project>
 
 
-                <Project title={brutalLogo} image="/pic/brutal-bg.png" id={2}>
+                <Project title={brutalLogo} image="/pic/brutal-bg.webp" id={2}>
 
                     <p className="py-2">An operating system inspired by brutalist design that combines the ideals of UNIX from the 1970s with modern technology and engineering </p>
                     Brutal is an open source micro kernel written in C. I contributed to the operating system in various way, but I'm not the only maintainer.
@@ -154,7 +154,7 @@ export default function Projects() {
                 </Project>
 
 
-                <Project title={wingosLogo} image="/pic/wingos-bg.png" id={3}>
+                <Project title={wingosLogo} image="/pic/wingos-bg.webp" id={3}>
 
                     <p className="py-2">Another 64 bit (amd64) operating system I wrote from scrarch in C++, it has smp, ext2, basic network, ahci... I stopped working on it for Brutal</p>
 
@@ -163,7 +163,7 @@ export default function Projects() {
 
                     </nav>
                 </Project>
-                <Project title="DEVSE" image="/pic/devse.png" id={4}>
+                <Project title="DEVSE" image="/pic/devse.webp" id={4}>
                     I am one of the administrators of the DEVSE community. It's an awesome french community around the development of low level programming and operating systems. 
                     We have a discord server, a wiki, an IRC, ... 
 
