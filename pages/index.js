@@ -34,7 +34,7 @@ export default function Home() {
                         Hello ! I'm <Handwritten>cyp</Handwritten>.
                     </h1>
                     <h2 className="text-xl text-white">
-                        I'm a 16 year old french developer, on this website you can see my blog or my projects.
+                        I'm a 17 year old french developer, on this website you can see my blog or my projects.
                     </h2>
                     <h3 className="py-8 flex flex-row w-full justify-around">
                         <Mlink href="#about">
@@ -64,7 +64,8 @@ export default function Home() {
                             general everything I do is open source. I've been
                             working on multiple <Mlink href="/projects">projects</Mlink>. You can also see my{" "}
                             <Mlink href="/blog">small blog</Mlink> which is not very
-                            full of content for the time being.
+                            full of content for the time being. 
+                            I'm currently studying at Insa lyon, and that means I no longer have the time to spend working on my projects. 
                         </p>
                     </div>
                 </div>
