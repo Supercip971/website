@@ -56,16 +56,16 @@ export default function Home() {
                     <div className="w-full">
                         <h1 className="my-8 px-2 font-black text-2xl bg-sky-500 text-white w-fit btitle ">About</h1>
                         <p className="text-xl">
-                            Hey ! I'm cyp, I am 17 years old C/C++ french
-                            programmer. I try to do a lot of low level
-                            programming (kernel/osdev, and lately I try to learn
-                            fpga). But sometimes I also try to do high level
-                            programming (as you can see with this website). In
+                            Hey! I'm cyp, I am 17 years old C/C++ french
+                            programmer. I try to do a lot of low-level
+                            programming (kernel/osdev, and lately I have been trying to learn
+                            fpga). But sometimes I also try to do high-level
+                            programming (as you can see on this website). In
                             general everything I do is open source. I've been
                             working on multiple <Mlink href="/projects">projects</Mlink>. You can also see my{" "}
                             <Mlink href="/blog">small blog</Mlink> which is not very
-                            full of content for the time being. 
-                            I'm currently studying at Insa lyon, and that means I no longer have the time to spend working on my projects. 
+                            full of content for the time being.  eeeeeeeee fkeofkoekfoek efk eofkeok feok feok foek foekf
+                            I'm currently studying at Insa Lyon, and that means I no longer have the time to spend working on my projects. 
                         </p>
                     </div>
                 </div>
