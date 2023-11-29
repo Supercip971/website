@@ -64,7 +64,7 @@ export default function Home() {
                             general everything I do is open source. I've been
                             working on multiple <Mlink href="/projects">projects</Mlink>. You can also see my{" "}
                             <Mlink href="/blog">small blog</Mlink> which is not very
-                            full of content for the time being.  eeeeeeeee fkeofkoekfoek efk eofkeok feok feok foek foekf
+                            full of content for the time being. 
                             I'm currently studying at Insa Lyon, and that means I no longer have the time to spend working on my projects. 
                         </p>
                     </div>
