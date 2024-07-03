@@ -1,6 +1,6 @@
 
 
-import localFont from '@next/font/local'
+import localFont from "next/font/local"
 
 
 // WTF why can't I just use the root of the project ?
