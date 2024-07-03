@@ -6,6 +6,7 @@ import { serialize } from "next-mdx-remote/serialize";
 import Link from "next/link";
 import { BottomBar } from "../../components/common/bottom";
 import Image from "next/image";
+import rehypeMathjax from 'rehype-mathjax'
 import { TopBar } from "../../components/common/top";
 import { MDXRemote } from "next-mdx-remote";
 import remarkGfm from "remark-gfm";
@@ -14,6 +15,10 @@ import Head from "next/head";
 import Mlink from "../../components/common/link";
 import { useEffect, useRef, useState } from "react";
 import CPart from "../../components/common/comment";
+import remarkRehype from "remark-rehype";
+import remarkMath from "remark-math";
+
+import rehypeKatex from "rehype-katex";
 
 function code_impl({ className, ...props })
 {
@@ -102,6 +107,10 @@ const components = {
         ></blockquote>
     ),
     code: code_impl,
+    "mjx-container": (props) => (
+        <span className="text-base text-black w-fit inline " {...props} >
+        </span>
+    ),
     ul: (props) => (
         <ul
             className="ml-8 list-disc text-base text-current list-inside"
@@ -153,7 +162,6 @@ export default function Post({ front, slug, mdx, source })
 
                 <meta name="description" content={front.description} />
                 <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: meta_desc }}/>
-                     
             </Head>
             <TopBar />
 
@@ -227,7 +235,20 @@ export async function getStaticProps({ params })
     const { data: frontMatter, content } = matter(markdownWithMeta);
     const mdxSource = await serialize(content, {
         mdxOptions: {
-            remarkPlugins: [remarkGfm],
+            remarkPlugins: [remarkGfm, remarkMath, remarkRehype],
+
+            rehypePlugins: [[rehypeMathjax, { 
+                chtml: {
+                      fontURL: 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/output/chtml/fonts/woff-v2',
+                    
+                },
+                displayMode: true,
+                output: 'mathml',
+                tex: {
+                    displayMath: [['$$', '$$']],
+                    inlineMath: [['$', '$']],
+                },
+        }]],
         },
     });
     const slug = params.slug;
