@@ -12,6 +12,7 @@ import { ShaderPass } from "three/examples/jsm/postprocessing/ShaderPass";
 import { Html, OrbitControls, useProgress } from "@react-three/drei";
 
 import {  Vector2, Vector3, PerspectiveCamera } from "three";
+import { FXAA } from "@react-three/postprocessing";
 
 function Model(props) {
     const { scene } = useLoader(GLTFLoader, "/computer/computer.gltf");
@@ -144,23 +145,14 @@ function Effect(ref) {
         hss.material.uniforms["saturation"].value = -1;
         const bcs = new ShaderPass(BrightnessContrastShader);
         bcs.material.uniforms["contrast"].value = 0.98;
+         
 
         finalComposer.addPass(renderScene);
-     //   finalComposer.readBuffer = offscreenTarget;
-     //   offscreenTarget.writeBuffer = finalComposer;
-
-        //         fxaa.material.uniforms.tDepth.value = offscreenTarget.depthTexture;
-
-
-     //   hss.material.depthFunc = DepthModes.AlwaysDepth;
-
-//        bcs.material.depthFunc = DepthModes.AlwaysDepth;
-       // fxaa.material.depthFunc = THREE.AlwaysDepth;
 
         finalComposer.addPass(hss);
         finalComposer.addPass(bcs);
 
-
+        
 
         // const pass = new SMAAPass( render_size.width, render_size.height );
         // 	finalComposer.addPass( pass );
@@ -249,11 +241,12 @@ export default function Computer(props) {
                 {...props}
             >
                 <WindowResizeRescaler dref={ref} />
-                <ambientLight intensity={0.8} />
+                
+                <ambientLight intensity={1.0} />
                 <directionalLight
                     position={[0, 10, 18]}
                     castShadow
-                    intensity={3.9}
+                    intensity={(3.9)*3.9}
                     color={[1, 1, 1]}
                 />
                 <OrbitControls enableZoom={true} target={[0, scale / 2, 0]} />
