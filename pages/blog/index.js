@@ -34,7 +34,13 @@ export default function PostList({ posts }) {
             </div>
 
             <div className=" p-4 md:p-0 bg-white min-h-[100vh] w-full m-auto  ">
-                {posts.map(({ slug, front }) => (
+                {posts.sort(( /*{slug, front}*/ left, right ) => {
+                    if (left.front.publishedOn <= right.front.publishedOn) {
+                        return 1;
+                    } else {
+                        return -1;
+                    }
+                }).map(({ slug, front }) => (
 
                     <article key={slug}>
                         <Link
