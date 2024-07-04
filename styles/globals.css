@@ -2,6 +2,7 @@
 @tailwind components;
 @tailwind utilities;
 
+
 @font-face {
   font-family: 'Pecita';
   font-style: normal;
@@ -31,7 +32,26 @@ body {
 }
 
 
+span.MathJax {
+  width: fit-content;
+  display: inline-block;
+  margin: 0 auto;
+}
+span.MathJax[display] {
+  width: fit-content;
+  display: block;
+  margin: 0 auto;
+}
 
+
+.MathJax > svg {
+  overflow-x: auto;
+  overflow-y: hidden;
+  display: inline;
+  height: auto;
+  margin-left: auto;
+  margin-right: auto;
+}
 @layer components {
 
 
