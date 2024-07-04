@@ -36,6 +36,37 @@ function code_impl({ className, ...props })
     );
 }
 
+
+// transform the children to text, and add an id as a text
+function TitlePart({children, className, ...props})
+{
+
+
+    let [text, setText] = useState("");
+
+    useEffect(() => {
+        // extract children as text
+//        console.log(children);
+
+        if(children == undefined)
+        {
+            return;
+        }
+        let text_child = children.props.children;
+        
+
+        setText(text_child.toString().replace(/ /g, "-").toLowerCase());
+    }, [children]);
+
+    return (
+       <span className={className} id={text}>
+       
+        
+{children}
+        </span>
+    );
+}
+
 const components = {
     a: (props) => (
         <Mlink {...props}>
@@ -43,35 +74,35 @@ const components = {
     img: (props) => <h1 className="btitle text-black bg-red-500">Fix your shit</h1>,
     Image: (props) => <Image {...props} />,
     h1: (props) => (
-        <h1 className="mt-8 btitle text-4xl font-black  text-white" {...props}>
-        </h1>
+        <TitlePart><h1 className="mt-8 btitle text-4xl font-black  text-white" {...props}>
+        </h1></TitlePart>
 
     ),
     h2: (props) => (
-        <h2 className="mt-8  text-3xl font-black  text-current" {...props}>
-        </h2>
+        <TitlePart><h2 className="mt-8  text-3xl font-black  text-current" {...props}>
+        </h2></TitlePart>
 
     ),
     h3: (props) => (
-        <h3 className="mt-8 text-2xl font-extrabold py-4 text-current" {...props}>
-        </h3>
+        <TitlePart><h3 className="mt-8 text-2xl font-extrabold py-4 text-current" {...props}>
+        </h3></TitlePart>
 
     ),
     h4: (props) => (
-        <h4 className="mt-8 text-xl font-extrabold py-4 text-current" {...props}>
-        </h4>
+        <TitlePart><h4 className="mt-8 text-xl font-extrabold py-4 text-current" {...props}>
+        </h4></TitlePart>
 
     ),
 
     h5: (props) => (
-        <h4 className="mt-8 text-lg font-extrabold py-4 text-current" {...props}>
-        </h4>
+        <TitlePart><h4 className="mt-8 text-lg font-extrabold py-4 text-current" {...props}>
+        </h4></TitlePart>
 
     ),
 
     h6: (props) => (
-        <h4 className="mt-8 text-lg font-extrabold py-4 text-current" {...props}>
-        </h4>
+        <TitlePart><h4 className="mt-8 text-lg font-extrabold py-4 text-current" {...props}>
+        </h4></TitlePart>
 
     ),
     p: (props) => <p className=" text-base py-2 text-current" {...props}></p>,
@@ -108,7 +139,8 @@ const components = {
     ),
     code: code_impl,
     "mjx-container": (props) => (
-        <span className="text-base text-black w-fit inline " {...props} >
+        <span className="
+        text-base text-black w-fit inline " {...props} >
         </span>
     ),
     ul: (props) => (
@@ -119,6 +151,60 @@ const components = {
     ),
     li: (props) => <li className="text-base py-1 text-current" {...props}></li>,
 };
+
+
+ function TableOfContent({table})
+{
+    let toc = useRef(<div></div>);
+    let [openned, setOpenned] = useState(false);
+    useEffect(() => {
+        let content = table.map((item) => {
+            return (
+                <div className={" text-base text-current"} style={
+                    { marginLeft: item.level*2 + "ch" }
+                
+                } key={item.title}>
+                    <Mlink href={item.linkRef} >
+                        → {item.title}
+                    </Mlink>
+                </div>
+            );
+        });
+        toc.current = content;
+    }, [table]);
+
+    return (
+
+
+
+        <div className="bg-black text-white w-prose h-full flex flex-col my-4 p-4">
+            <h1 className="text-2xl font-black py-1">Table of Content</h1>
+            <div>
+                {openned ? (
+                    <button
+                        className="text-base text-current"
+                        onClick={() => setOpenned(false)}
+                    >
+                        ↑ Close 
+                    </button>
+                ) : (
+                    <button
+                        className="text-base text-current"
+                        onClick={() => setOpenned(true)}
+                    >
+                        ↓ Open
+                    </button>
+                )}
+            </div>
+
+
+            <div className={
+                openned ? "block" : "hidden"}>
+            {toc.current}
+                </div>
+        </div>
+    );
+}
 
 export default function Post({ front, slug, mdx, source })
 {
@@ -140,6 +226,38 @@ export default function Post({ front, slug, mdx, source })
                         },
                         ]
                     });
+
+    // create a table of content from markdown mdx 
+    
+
+    
+    let [toc, setToc] = useState([]);
+
+    useEffect(() => {
+        let tocTemp = [];
+        let content = source.split("\n");
+        let level_count = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+        for (let line of content)
+        {
+            if (line.startsWith("#"))
+            {
+                let level = line.match(/#+/)[0].length; // number of '#' in the line
+                
+                level_count[level] += 1;
+
+                //let count_total = level_count.slice(0, level + 1).join(".");
+                let title = line.replace(/#+/, "").trim(); // remove '#' from the line
+                let linkRef = "#" + title.replace(/ /g, "-").toLowerCase(); // create a link reference
+                tocTemp.push({ level: level, title: title, linkRef: linkRef }); // add to the table of content
+            }
+        }
+
+        setToc(tocTemp);
+    
+    }, [source]
+    );
+   
+
 
     return (
         <div className=" w-full">
@@ -193,6 +311,8 @@ export default function Post({ front, slug, mdx, source })
             <div className=" bg-white text-white flex flex-col lg:flex-row min-h-[50vh] pt-16 py-8 w-full px-8 z-2 " id="content">
      
                <main className="m-auto max-w-prose w-full text-black grow   ">
+
+                    <TableOfContent table={toc} />
                     <MDXRemote {...mdx} components={components} lazy />
 
                     <div className="py-8 ">
@@ -251,6 +371,7 @@ export async function getStaticProps({ params })
         }]],
         },
     });
+
     const slug = params.slug;
     return {
         props: {
