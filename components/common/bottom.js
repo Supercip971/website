@@ -5,14 +5,17 @@ export function BottomBar(props) {
         <div {...props}>
             <div className=" m-auto">
                 
-                <Mlink href="https://github.com/Supercip971/website"> source code </Mlink>
+                <Mlink href="https://github.com/Supercip971/website"> source </Mlink>
             </div>
             <div className=" m-auto">
-                <Mlink href="/licenses"> licenses </Mlink>
+                <Mlink href="/licenses"> license </Mlink>
             </div>
 
             <div className=" m-auto">
                 <Mlink href="/contact"> contact </Mlink>
+            </div>
+            <div className=" m-auto">
+                <Mlink href="https://webring.devse.wiki/"> webring </Mlink>
             </div>
         </div>
     );
