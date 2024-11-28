@@ -11,6 +11,7 @@ import Mlink from "../../components/common/link";
 import seedrandom from "seedrandom";
 import Zoom from "../../components/common/zoommedExif";
 
+
 async function PhotoLoad(photos, gridsCount) {
     let photosRes = [];
 
@@ -18,21 +19,30 @@ async function PhotoLoad(photos, gridsCount) {
     let lastIsHorizontal = false;
     let index = 0;
 
+    let exifDatsPromise = [];
     for (let photo of photos) {
-        const exif = await parse(`photos/${photo.filename}`).then((exif) => {
-            return exif;
-        });
+        exifDatsPromise.push(
+            (async () =>{
+                let exif = await parse(`photos/${photo.filename}`).then((exif) => {
+                    return exif});
+                let res = photo;
+                res.exif = exif;
+                res.width = exif.ExifImageWidth;
+                res.height = exif.ExifImageHeight;
+        
+                res.isHorizontal = false;
+                if (exif.ExifImageWidth >= exif.ExifImageHeight) {
+                    res.isHorizontal = true;
+                }
+                return res;
+        })());
+    }
+    let exifDats = await Array.fromAsync(exifDatsPromise).then((res) => {return res});
+    
+    for (let photo of exifDats) {
+
 
         let res = photo;
-        res.exif = exif;
-        res.width = exif.ExifImageWidth;
-        res.height = exif.ExifImageHeight;
-
-        res.isHorizontal = false;
-        if (exif.ExifImageWidth >= exif.ExifImageHeight) {
-            res.isHorizontal = true;
-        }
-        console.log(res);
 
         /* 
 
