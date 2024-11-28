@@ -46,8 +46,10 @@ export default function Home() {
                         <Mlink href="/blog">
                             Blog
                         </Mlink>
+                        <Mlink href="/photo">
+                            Photos
+                        </Mlink>
 
-                        <Mlink href="/contact"> Contact </Mlink>
                     </h3>
                 </div>
             </div>
@@ -56,7 +58,7 @@ export default function Home() {
                     <div className="w-full">
                         <h1 className="my-8 px-2 font-black text-2xl bg-sky-500 text-white w-fit btitle ">About</h1>
                         <p className="text-xl">
-                            Hey! I'm cyp, I am 18 years old C/C++ french
+                            Hey! I'm <Handwritten><span class="text-4xl">cyp</span></Handwritten>, I am 18 years old C/C++ french
                             programmer. I try to do a lot of low-level
                             programming (kernel/osdev, and lately I have been trying to learn
                             fpga). But sometimes I also try to do high-level
@@ -66,6 +68,10 @@ export default function Home() {
                             <Mlink href="/blog">small blog</Mlink> which is not very
                             full of content for the time being. 
                             I'm currently studying at Insa Lyon, and that means I no longer have the time to spend working on my projects. 
+                            But I still try to do some small things from time to time, such as photography.
+                            <br/>
+                            If you are interested, you can always contact me: 
+                            <Mlink href="/contact"> Contact </Mlink>
                         </p>
                     </div>
                 </div>
