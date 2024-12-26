@@ -75,8 +75,8 @@ export default function Home() {
                         </p>
                     </div>
                 </div>
-                <div className=" m-auto  grayscale ease-in-out duration-700 hover:grayscale-0 max-w-prose w-1/3 lg:w-1/6  aspect-square py-8 lg:p-1  bg-white">
-                    <div className="rounded-full  invert contrast-200 hover:contrast-100 hover:invert-0 shadow-black ease-in-out duration-700">
+                <div className=" m-auto  grayscale ease-in-out duration-700 hover:grayscale-0 max-w-prose w-1/3 lg:w-1/4  aspect-square py-8 lg:p-1  bg-white">
+                    <div className="rounded-full  contrast-200 hover:contrast-100  shadow-black ease-in-out duration-700">
 
                         <Image src="/logo.webp" alt="my icon" width="512" height="512" quality="90 " className=" rounded-full" />
 
