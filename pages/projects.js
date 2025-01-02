@@ -196,7 +196,7 @@ export default function Projects() {
                             A WIP hobby raspberry pi pico emulator.
                         </SProject>
                         <SProject title={"obsidian typing speed"} link={"https://github.com/Supercip971/obsidian-typing-speed"}>
-                            An obsidian plugin to track your typing speed. (1000+ downloads).
+                            An obsidian plugin to track your typing speed. (10000+ downloads).
                         </SProject>
                         <SProject title={"Riscy-interpret"} link={"https://github.com/Supercip971/RISCYINTERPRET"}>
                             A risc-v interpretter written in C++ from scratch.
