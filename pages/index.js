@@ -34,7 +34,7 @@ export default function Home() {
                         Hello ! I'm <Handwritten>cyp</Handwritten>.
                     </h1>
                     <h2 className="text-xl text-white">
-                        I'm a 18 year old french developer, on this website you can see my blog or my projects.
+                        I'm an 18 year old french developer. On this website you can see my blog or my projects.
                     </h2>
                     <h3 className="py-8 flex flex-row w-full justify-around">
                         <Mlink href="#about">
@@ -58,20 +58,18 @@ export default function Home() {
                     <div className="w-full">
                         <h1 className="my-8 px-2 font-black text-2xl bg-sky-500 text-white w-fit btitle ">About</h1>
                         <p className="text-xl">
-                            Hey! I'm <Handwritten><span class="text-4xl">cyp</span></Handwritten>, I am 18 years old C/C++ french
-                            programmer. I try to do a lot of low-level
-                            programming (kernel/osdev, and lately I have been trying to learn
-                            fpga). But sometimes I also try to do high-level
-                            programming (as you can see on this website). In
-                            general everything I do is open source. I've been
-                            working on multiple <Mlink href="/projects">projects</Mlink>. You can also see my{" "}
-                            <Mlink href="/blog">small blog</Mlink> which is not very
-                            full of content for the time being. 
-                            I'm currently studying at Insa Lyon, and that means I no longer have the time to spend working on my projects. 
-                            But I still try to do some small things from time to time, such as photography.
-                            <br/>
-                            If you are interested, you can always contact me: 
-                            <Mlink href="/contact"> Contact </Mlink>
+                        Hello! I'm <Handwritten><span class="text-4xl">cyp</span></Handwritten>, an 18-year-old French C/C++ programmer.  
+                        I focus on low-level programming (kernel/osdev, and lately I've been exploring FPGA development).  
+                        Sometimes, I also experiment with high-level programming (as you can see on this website).  
+                        Most of my work is open source. I've been working on multiple <Mlink href="/projects">projects</Mlink>.  
+                        You can also check out my <Mlink href="/blog">small blog</Mlink>, which doesn't have much content for now.  
+                        
+                        I'm currently studying at INSA Lyon, so I no longer have as much time to dedicate to my projects.  
+                        However, I still try to work on smaller things occasionally, like photography.  
+                        
+                        <br/>
+                        If you're interested, feel free to reach out:  
+<Mlink href="/contact">Contact</Mlink>
                         </p>
                     </div>
                 </div>
