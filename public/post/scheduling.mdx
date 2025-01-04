@@ -1,0 +1,537 @@
+---
+title: Simple scheduler implementation for a multi-core operating system
+seoTitle: How to start from the simplest scheduler and improve it for a multi-core operating system. How it works and what are the main points to consider when designing a scheduler.
+description: Simple scheduler implementation for a multi-core operating system. How to start from the simplest scheduler and improve it for a multi-core operating system. How it works and what are the main points to consider when designing a scheduler.
+isPublished: true
+publishedOn: "2025-01-04"
+modifiedOn: "2025-01-04"
+layout: Article
+slug: Hello
+socialImage: post/sched.png
+---
+
+> Note: 
+> This article based on a markdown file I wrote as a way to explain the scheduler used in the [Brutal](https://github.com/brutal-org/brutal/blob/main/meta/scheduling.md) operating system. It was further improved thanks to the help of [Monax](https://github.com/sleepy-monax).
+> 
+> I am currently writing a really big post about the explanation and implementation of machine learning from scratch in C. But in the meantime I wanted to do something smaller in and thus re-write my old scheduler explanation.
+
+
+# Introduction 
+
+In every operating system, we need to run apps concurrently. However, in reality, a single processor can run only one process at a time (or a couple of CPUs, but for simplification, we will only consider a single processor for now).
+
+How do our systems manage to run Firefox, Word, etc. At the same time ? 
+
+Its simple: they don't.
+
+Well technically they do - Using a certain way. The system switches tasks so fast that it seems like all taks are running simultaneously. 
+
+## How the kernel manages multiple tasks 
+
+> note: this is pretty similar to my article written a long time ago about the [implementation of coroutines in C](https://cyp.sh/blog/coroutines-in-c)
+
+<Image src="/pic/coroutines/multitasking-types.svg" alt="Preemptive multitasking is managed by the kernel, and cooperative multitasking is managed by the tasks themselves" width="678" height="554" />
+
+At first, in the old days, the apps were running sequential. They were responsible for managing their own time. It was called __cooperative multitasking__. 
+What it means is that the apps were calling a function to give the control back to the kernel, then the kernel was giving the control back to another app.
+
+But this system was not really efficient, as if an app was not giving the control back to the kernel (for example if it crash), the whole system was blocked. 
+One advantage of this system is that it is really performant, and the apps always know when they will switch to another app.
+
+Thus, preemptive multitasking was created. While less performant, it is more reliable and secure. The __kernel__ force a context switch between the __apps__ at a regular interval. 
+
+But a question remains: how does the kernel know when to switch to another app ? 
+
+# The scheduler
+
+At a certain interval, the kernel will receive what we call an __interrupt__ (more precisely, a timer interrupt). An interrupt is a signal sent to the processor to get its attention. It will stop the current running process and the kernel will now be able to run its own code.
+We use this feature to switch to another task. When we receive the __interrupt__ we are able to save the current running task, 
+call the __scheduler__ and switch to another task.
+
+
+<Image src="/pic/sched/scheduler.svg" alt="Scheduler switching between processes over time passing through the kernel by the help of interrupts" width="678" height="554" />
+
+
+Generally a __scheduler__ is an algorithm that selects the next process to run on a processor. 
+
+> Moreover, schedulers can also be generalized as components that decide which computational entities (tasks) will be able to use a resource and when. However, in this article, we will only focus on tasks scheduling. The same principles can be applied, for example, to manage the scheduling of network packets.
+
+Thus, when being called by the kernel, the scheduler will select the next task to run for a certain cpu.
+
+We need to keep in mind that there is no "best" scheduler, as some schedulers offer better overall performance, and some other scheduler offer better 
+responsiveness. It depends on the use case.
+
+## What are the main point to consider when designing a scheduler ?
+
+- __Fairness__: You need to make sure that all the apps are treated fairly. You don't want to have the word process running 2x faster than your game. 
+- __Efficiency__: The scheduler needs to be efficient.
+- __Responsiveness__: The scheduler needs to be responsive.
+
+In this article, we will gloss over those different point, but we will still try to respect them. 
+
+Responsiveness is generally considered in real-time operating systems (operating systems designed for embedded application that needs quick response time).
+
+When designing a scheduler, we need to minimize the time spent in the kernel, and maximize the time spent in the user space (apps).
+Thus, we need to avoid useless context switches. A context switch is when the kernel switch from one app to another. It is a really expensive operation, as it needs to save the state of the current app, and load the state of the next app. 
+
+## Our first scheduler: round-robin
+
+Our first scheduler will be a really simple one. It will be a __round-robin__ scheduler. 
+It was the solution used by Linux at the beginning (version 1.2 up until 2.4)
+
+Each time the kernel asks the scheduler to select the next task to run, the scheduler will put the current running task on-top of the queue, and use the last task in the queue to run. It's a FIFO list.
+
+Let's say we have 3 tasks: `A`, `B` and `C`.
+We call a tick the time when the kernel asks the scheduler to select the next task to run.
+For now, we will consider that each task takes 1 tick to run.
+
+| cpu    | 1   | 
+| ------ | --- |
+| tick 1 | A   |
+| tick 2 | B   | 
+| tick 3 | C   | 
+| tick 4 | A   | 
+| tick 5 | B   | 
+| tick 6 | C   | 
+
+Here, we see that we run the last task that was running. For example, at tick 4, we run task `A` as it was the last task running.
+
+We can implement round robin by having an array of tasks and a variable that will store the index of the last task running. 
+After each tick, we increment the index of the last task running, and we run the task at this index.
+
+<Image src="/pic/sched/round-robin.svg" alt="A picture of a round-robin scheduler" width="678" height="554" />
+
+While not the most efficient scheduler, it is a really simple one and can be used in a lot of cases. And one big advantage of this scheduler is that it is `O(1)`.
+
+A possible pseudo-implementation would be: 
+
+```c
+int current_running_task;
+
+void schedule() {
+    current_running_task = (current_running_task + 1) % number_of_tasks;
+    run_task(current_running_task);
+}
+```
+
+## Extending the round-robin scheduler
+
+Ok, now we have a simple round-robin scheduler. But now we discover a system with multiple cores. How do we manage the scheduling of tasks on multiple cores ?
+
+We can use the same round-robin scheduler, but we will have a different queue for each core. 
+Thus, we have a cursor for each core, and we will increment the cursor of each core at each tick.
+
+For now, we will consider that we have 2 cores, and 3 tasks: `A`, `B` and `C`.
+It will look like this:
+
+| cpu    | 1   | 2   | 
+| ------ | --- | --- |
+| tick 1 | A   | B   |
+| tick 2 | B   | C   | 
+| tick 3 | C   | A   | 
+| tick 4 | A   | B   | 
+| tick 5 | B   | C   | 
+| tick 6 | C   | A   | 
+
+<Image src="/pic/sched/round-robin-smp.svg" alt="A picture of a round-robin scheduler with 2 cpus" width="678" height="554" />
+
+
+In code: 
+```c
+int current_running_task[CPU_COUNT];
+
+void schedule() {
+    for (int cpu = 0; cpu < CPU_COUNT; cpu++) {
+        current_running_task[cpu] = (current_running_task[cpu] + 1) % number_of_tasks;
+        run_task_for_cpu(current_running_task[cpu], cpu);
+    }
+}
+```
+
+## Improving round-robin responsiveness 
+
+But actually it's not what we want. If we put 4 tasks we would want to get: 
+
+| cpu    | 1   | 2   |
+| ------ | --- | --- |
+| tick 1 | A   | B   |
+| tick 2 | C   | D   |
+| tick 3 | B   | A   |
+| tick 4 | D   | C   |
+
+But we get: 
+
+| cpu    | 1   | 2   |
+| ------ | --- | --- |
+| tick 1 | A   | D   |
+| tick 2 | B   | A   |
+| tick 3 | C   | B   |
+| tick 4 | D   | C   |
+
+Here, while the task run the same amount of time on each core, they are being kept for 2 tick right afterward. 
+Which is bad for good responsiveness (as the task `A` run 2 ticks but needs to sleep for 2 ticks).
+
+While in the first solution, the task run 1 tick, sleep for 1 tick, and do it again.
+So at most a task will sleep for 1 tick.
+
+This issue arise from the fact that we are using the same round-robin scheduler for each core but with an offset of 1. So the task that was running on the first core will run on the second core right afterward. 
+
+We can fix this by using a different offset for each core.
+Let's keep a single cursor shared for each core, but we will increment the cursor by the number of tasks divided by the number of cores `number_of_tasks / number_of_cores`, this helps to have the same distance between each task on each core.
+
+Thus, before it was: 
+
+
+
+<Image src="/pic/sched/round-robin-off1.svg" alt="A picture of a round-robin scheduler with an offset of 1" width="678" height="554" />
+
+$$
+i(\text{cpu}) = \left(\text{tick} +  \text{cpu}\right) \% \text{ number\_of\_tasks}
+$$
+
+Now it would be:
+
+<Image src="/pic/sched/round-robin-off.svg" alt="A picture of a round-robin scheduler with an offset of 1" width="678" height="554" />
+
+$$
+i(\text{cpu}) = \left(\text{tick} +  \text{cpu} * \lfloor{\frac{\text{number\_of\_tasks}}{\text{number\_of\_cores}}\rfloor}\right) \%  \text{ number\_of\_tasks}
+$$
+
+Thus, in code: 
+
+```c
+int curr_tick; 
+
+void round_robin_schedule() {
+    for (int cpu = 0; cpu < CPU_COUNT; cpu++) {
+
+        current_running_task[cpu] = (curr_tick + cpu * (number_of_tasks)/(CPU_COUNT)) % number_of_tasks;
+ks;
+        run_task_for_cpu(current_running_task[cpu], cpu);
+    }
+}
+```
+
+
+
+### Improving SMP performance step 1
+
+Now, we need to understand a constraint: we need to avoid context switches if possible.
+For example, let's say we have 2 tasks (`A`, `B`) and 2 cores.
+
+Our current algorithm will look like this:
+
+| cpu    | 1   | 2   |
+| ------ | --- | --- |
+| tick 1 | A   | B   |
+| tick 2 | B   | A   |
+| tick 3 | A   | B   |
+
+Ok, it's pretty bad. We are switching tasks at each tick. We can avoid this unecessary context switch by running the same task on the same core if possible. 
+
+It means that we need to schedule __only if we have a higher number of task than cpu__. For example, if we have two tasks, it's not higher than 2, then we could just not schedule and keep the current running tasks.
+
+| cpu    | 1   | 2   |
+| ------ | --- | --- |
+| tick 1 | A   | B   |
+| tick 2 | A   | B   |
+| tick 3 | A   | B   |
+
+Our code will now look like this: 
+
+```c
+int current_running_task[CPU_COUNT];
+
+void schedule() {
+    if (number_of_tasks < CPU_COUNT) {
+        // we keep the current running tasks
+        return;
+    }
+
+    for (int cpu = 0; cpu < CPU_COUNT; cpu++) {
+        current_running_task[cpu] = (current_running_task[cpu] + 1) % number_of_tasks;
+        run_task_for_cpu(current_running_task[cpu], cpu);
+    }
+    
+}
+```
+
+### Improving SMP performance step 2
+
+For now, our scheduler is now able to dispatch multiple processes on multiple cores. But, if we take a look closer at our current 
+implementation, it is still really inneficient. 
+
+Let's look at the following example, here we have 5 tasks being dispatched on 4 cores.
+
+| cpu    | 1   | 2   | 3   | 4   |
+| ------ | --- | --- | --- | --- |
+| tick 1 | A   | B   | C   | D   |
+| tick 2 | E   | A   | B   | C   |
+| tick 3 | D   | E   | A   | B   |
+| tick 4 | C   | D   | E   | A   |
+| tick 5 | B   | C   | D   | E   |
+
+If we look closely, each tasks run 4 time for each 5 ticks. So it's fair, but the fact that each task move from one core to another is really underperformant.
+Here, task `A` instead of running on the same core 4 tick, is being moved to another core, it means that we: invalidate the cpu cache, we make a context switch, ... And this is really expensive.
+
+At first, we may say that a better solution would be: 
+
+| cpu    | 1   | 2   | 3   | 4   |
+| ------ | --- | --- | --- | --- |
+| tick 1 | E   | B   | C   | D   |
+| tick 2 | A   | E   | C   | D   |
+| tick 3 | A   | B   | E   | D   |
+| tick 4 | A   | B   | C   | E   |
+| tick 5 | A   | B   | C   | D   |
+
+Ok, it's better but not quite perfect. Here only the task E is being moved. So it's not fair, as the task E is being slowed down by a lot of context switches. 
+
+The best solution in our case would be: 
+
+
+| cpu     | 1   | 2   | 3   | 4   |
+| ------  | --- | --- | --- | --- |
+| tick 1  | A   | C   | D   | E   |
+| tick 2  | A   | B   | D   | E   |
+| tick 3  | A   | B   | C   | E   |
+| tick 4  | A   | B   | C   | D   |
+| tick 5  | E   | B   | C   | D   |
+| tick 6  | E   | A   | C   | D   |
+| tick 7  | E   | A   | B   | D   |
+| tick 8  | E   | A   | B   | C   |
+| tick 9  | D   | A   | B   | C   |
+| tick 10 | ...   | ...   | ...   | ...   |
+
+
+Each tick, only one cpu switch context with another task. Each task is being run on the same core for 4 ticks, and then wait for 1 tick. 
+
+This scheduling algorithm minimize the number of context switches, and is really efficient.
+
+But how is this implemented ? 
+This algorithm is implemented by keeping in mind the concept of fairness.
+We know one rule: 
+
+- For each tick, we will have $n$ context switch, where $n$ is equal to the number of runnable task minus the number of cores. 
+
+For example, if we have 4 cores, and 5 tasks, we will have 1 context switch per tick. (like the example above, between each tick, only one cpu change task).
+
+If we have 4 cores and 6 tasks, we will have 2 context switch per tick.
+
+When switching to a new task, we need to select the task that was not running for the longest time.
+And use the task that ran for the longest time as the next task to run.
+
+Thus, our task need to store two information: 
+
+```c 
+
+int current_tick; 
+
+struct Task {
+    bool running;
+    int time_begin;
+    int time_end;
+};
+```
+
+- The `time_begin` is used to store the tick at which the task was last running. 
+- The `time_end` is used to store the tick at which the task was last ending.
+
+Note that the `time_end` is only updated when the task stopped running.
+
+
+Now we need some functions to select the most waiting task, and the cpu with the longest running task.
+```c
+// let's imagine it's a dynamic vector
+Vec_t(Task) tasks;
+
+
+int select_most_waiting_task() {
+    int min_time = INT_MAX;
+    int min_task = -1;
+    for (int i = 0; i < tasks.size; i++) {
+        if (tasks[i].running) {
+            continue;
+        }
+        if(tasks[i].time_end < min_time)
+        {
+            min_time = tasks[i].time_end;
+            min_task = i;
+        }
+    }
+    return min_task;
+}
+```
+
+Here our function `select_most_waiting_task` will select the task that was not running for the longest time.
+
+```c 
+int select_cpu_with_most_running_task() {
+    int max_time = INT_MAX;
+    int max_cpu = 0;
+    for (int i = 0; i < CPU_COUNT; i++) {
+        if (is_cpu_idle(i)) { 
+            return i;
+        }
+        if(tasks[current_running_task[i]].time_begin < max_time)
+        {
+            max_time = tasks[current_running_task[i]].time_begin;
+            max_cpu = i;
+        }
+    }
+    return max_cpu;
+}
+```
+
+
+
+Now we need to implement the scheduler: 
+
+```c
+
+
+void schedule() {
+    if(tasks.size < CPU_COUNT) {
+        // we keep the current running tasks
+        return;
+    }
+
+    // we can't do more than CPU_COUNT context switch
+    int context_switch = min(tasks.size - CPU_COUNT, CPU_COUNT);
+
+    for (int sched = 0; sched < context_switch; sched++) {
+        int task = select_most_waiting_task();
+        int cpu = select_cpu_with_most_running_task();
+        if (task == -1) {
+            // no task to run
+            continue;
+        }
+        tasks[task].running = true;
+        tasks[task].time_begin = current_tick;
+
+        tasks[current_running_task[cpu]].running = false;
+        tasks[current_running_task[cpu]].time_end = current_tick;
+        run_task_for_cpu(task, cpu);
+    }
+
+    current_tick++;
+}
+```
+
+Let's go through the code.
+- First we check the number of context switch we can do. We can't do more than the number of tasks minus the number of cores. 
+- Then we select the task that was not running for the longest time. 
+- We select the cpu that has the task that was running for the longest time.
+- We update the task that was running, and the task that will run.
+
+And that's it. We have a really efficient scheduler that minimize the number of context switches.
+
+But, the algorithm isn't that great, as it is generally `O(n)`. 
+We could improve it by switching back to a round-robin scheduler when the number of tasks is higher than 2 times the number of cores.
+As if the number of tasks is higher than 2 times the number of cores, it means that we will have a context switch needed for each core and 
+thus the optimization we made is useless.
+
+## Switching to a round robin when needed 
+
+A way to disregard the optimization we made only when needed is to switch back to a round-robin scheduler when the number of tasks is higher than 2 times the number of cores.
+Or if the number of `context_switch` is higher or equal to the number of cores.
+
+```c
+if (context_switch == CPU_COUNT) {
+    shedule_round_robin();
+}
+```
+
+This would be a good way to optimize our scheduler.
+
+
+# Which cpu receives an interrupt ?
+
+An issue we didn't talk about is: which cpu receive the interrupts ? Who manages the scheduling ? 
+
+Because our scheduler is managing all cpus, it means that we want only one cpu to schedule the other one.
+
+Thus, we need to select a cpu that will be the master cpu. This cpu will be the one that will receive the interrupts and will manage the scheduling of the other cpus.
+
+Generally the cpu `0` receives all the interrupts, and is the master cpu.
+
+But this creates an issue, as the cpu `0` will be overloaded by interrupts: an interrupt force a heavy and expensive layer switch to the kernel. 
+
+If we switch to another task, we don't care, because a context switch needs to happend in the kernel. But if the task is running and keep running on the same core, we don't need to switch to the kernel.
+
+We also communicate to other cpus by sending an interrupt, when we schedule a task on another cpu, we send an inter-processor-interrupt (IPI) `X` to tell the cpu to exit its task, enter the kernel, and switch to another task. 
+
+If we look at our example, we see that we have 5 tasks, and 4 cores. Here, our main cpu will be cpu n°1. Thus, it will receive a timer interrupt `T` at each tick.
+
+
+
+| cpu     | 1   | 2   | 3   | 4   |
+| ------  | --- | --- | --- | --- |
+| tick 1  | A   | C   | D   | E   |
+| INT     | T   | X   |     |     |
+| tick 2  | A   | B   | D   | E   |
+| INT     | T   |     | X   |     |
+| tick 3  | A   | B   | C   | E   |
+| INT     | T   |     |     | X   |
+| tick 4 | ...   | ...   | ...   | ...   |
+
+
+But we could improve this by selecting the cpu that was running the last task to receive the timer interrupt:
+
+| cpu     | 1   | 2   | 3   | 4   |
+| ------  | --- | --- | --- | --- |
+| tick 1  | A   | C   | D   | E   |
+| INT     |     | T   |     |     |
+| tick 2  | A   | B   | D   | E   |
+| INT     |     |     | T   |     |
+| tick 3  | A   | B   | C   | E   |
+| INT     |     |     |     | T   |
+| tick 4 | ...   | ...   | ...   | ...   |
+
+> Note: a CPU that receives a timer interrupt can switch task at the end of the tick, without needing to send an IPI to itself. 
+
+Thus, we want to select the cpu that was running the most to receive the next timer interrupt. In a way, we try to predict the next cpu that needs to be scheduled.
+
+But keep in mind, this is true only for our optimized scheduler, not the old round-robin scheduler. A way to implement it for the round-robin would be to select the next cpu (thus, if we are cpu 1, the next cpu would be cpu 2, then cpu 3, ...).
+```c
+void schedule() {
+    if(tasks.size < CPU_COUNT) {
+        // we keep the current running tasks
+        // ++++
+        cpu_interrupt_handle(INTERRUPT_TIMER, cpu_current() + 1 % CPU_COUNT);
+        return;
+    }
+    // [...]
+    if (context_switch == CPU_COUNT) {
+        shedule_round_robin();
+        // ++++
+        cpu_interrupt_handle(INTERRUPT_TIMER, cpu_current() + 1 % CPU_COUNT);
+
+        return;
+    }
+
+    // [...]
+
+    current_tick++;
+    // ++++
+    cpu_interrupt_handle(INTERRUPT_TIMER,  select_most_active_cpu());
+}
+```
+
+Here at the end, we add that the most active cpu (after the scheduling, thus the one that will switch during the next schedule) will be the one that will receive the next timer interrupt.
+
+For the case that we use the round-robin scheduler, or if we don't need to schedule: we select the next cpu to receive the timer interrupt. 
+
+
+# Conclusion
+
+Here we have a great starting point, but it is still a really simple scheduler. While it supports SMP (multi-processor) and has ok performance it is a long way to go to have a really efficient scheduler. It doesn't support any concept of priority, cpu affinity or any other advanced concept. Keep in mind, it is still quite good, and can be used in a lot of cases. 
+
+But I would still recommend taking a look at other scheduler algorithm to improve your knowledge. 44
+
+
+# Sources / Further readings
+
+- [Implementation of coroutines in C](https://cyp.sh/blog/coroutines-in-c)
+- [https://en.wikipedia.org/wiki/Scheduling_(computing)](https://en.wikipedia.org/wiki/Scheduling_(computing))
+- [OSDEV - Scheduling alforithms](https://wiki.osdev.org/Scheduling_Algorithms)
+- [Linux 2.6 cpu scheduler](https://web.archive.org/web/20070627191326/http://josh.trancesoftware.com/linux/linux_cpu_scheduler.pdf)
