@@ -288,9 +288,9 @@ export default function Post({ front, slug, mdx, source })
                     <Image src={"/" + front.socialImage} alt="blog post picture" sizes="100vw" fill quality="90" className=" img-cover inline-block " />
                 </div>
 
-                <header className="bg-black/75 bg-gradient-to-t from-black to-black/10 backdrop-blur-xl  flex flex-col h-[50vh] lg:h-screen lg:max-w-prose  text-white pt-32 py-8 px-8 z-0"  >
+                <header className="bg-black/75 bg-gradient-to-t from-black to-black/10 backdrop-blur-xl  flex flex-col min-h-[50vh] lg:min-h-screen lg:max-w-prose  text-white pt-32 py-8 px-8 z-0"  >
                     <div className="m-auto max-w-prose w-full    ">
-                        <h1 className="text-5xl  p-4 m-auto w-fit text-white font-black bg-sky-500 ">
+                        <h1 className="text-4xl  p-4 m-auto w-fit text-white font-black bg-sky-500 ">
                             {front.title}
                         </h1>
                         <h2 className="pt-4 ">
