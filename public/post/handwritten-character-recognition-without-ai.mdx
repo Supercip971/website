@@ -1,0 +1,393 @@
+---
+title: Handwritten Character Recognition Without Machine Learning  
+seoTitle: Handwritten Character Recognition Without Machine Learning - Dynamic Time Warping Implemented  
+description: How to recognize Japanese kanji without machine learning by using the Dynamic Time Warping algorithm in Python.  
+isPublished: true  
+publishedOn: "2025-07-18"  
+modifiedOn: "2025-07-18"  
+layout: Article  
+slug: Hello  
+socialImage: post/handwritten-character-recognition-without-ai.webp  
+---
+
+# Introduction
+
+As an introduction, I should tell the backstory of this brief article.
+
+As a starting point, I wanted to write an article about machine learning. It was nearly complete (and is still in progress).
+
+But the illustration used in that work was a simple handwritten character recognition tool.
+
+While satisfactory, it revealed a real example of a recurring issue:  
+- Do you need machine learning for all of your problems?
+
+Machine learning is a quick way to solve this problem, but it may be suboptimal.
+
+And the final result is quite obscure. While you can grasp how the neural network is constructed, you are faced with an abysmal hole of  
+knowledge when trying to understand what the neural network is actually doing.
+
+In the end, the aim of this article is to implement a handwritten character recognition tool without machine learning, and to show that it is indeed possible.
+
+This will be realized using the Dynamic Time Warping (DTW) algorithm, a popular method for comparing two time series.
+
+It is quicker to implement, faster, and supports thousands of characters.
+
+## ASAPP
+
+We implemented the DTW algorithm in a second-year school project at the INSA Lyon engineering school.
+
+My awesome team with whom I built the app was:
+- [lylykin](https://github.com/lylykin) (my awesome girlfriend!)
+- [lepoucebleu](https://github.com/LePouceBleu) (he is the reason why the project is filled with foxes)
+- [DoubleD](https://github.com/DoubleD3269) (another great friend!)
+
+The source code is available here: [lylykin/asapp](https://github.com/lylykin/asapp) (if you love the project, don't hesitate to leave a star <3!)
+
+The application was designed to record online strokes and guess which Japanese character they corresponded to.
+
+> What is Online vs Offline?
+> - An **online** algorithm records raw stroke information, i.e., the position of the mouse cursor at a given time.  
+>   Thus, it needs data in a time → point format, or index → point format. It is useful for data recorded in real time (e.g., a user writing on a screen).  
+> - An **offline** algorithm processes raw pixels, for example. It is useful when converting photographic data into text.
+
+We used an optimized DTW algorithm to speed up the process (since comparing over 1000 samples in near real time in Python is not trivial).
+
+It was nearly impeccable, able to recognize complex characters easily. While slightly less effective with simple ones, it remained reliable.
+
+The algorithm can be fine-tuned to improve recognition of simple characters with a reduced dataset.
+
+<center>
+<Image src="/pic/handwritten-without-ml/handwritten-2.png" alt="handwritten 2 being correctly recognized by the algorithm" width="450" height="554" />
+A correctly guessed 2
+</center>
+
+<br></br>
+
+<center> 
+<Image src="/pic/handwritten-without-ml/handwritten-fu.png" alt="handwritten フ being correctly recognized by the algorithm" width="450" height="554" />
+A correctly guessed フ 
+</center>
+
+<br></br>
+
+<center>
+<Image src="/pic/handwritten-without-ml/handwritten-kitsune.png" alt="handwritten 狐 being correctly recognized by the algorithm" width="450" height="554" />
+A correctly guessed 狐 (even if my writing is really bad)
+</center>
+
+<br></br>
+
+# Stroke Comparison Algorithm: Possible Algorithms
+
+In this article, we will assume you already have at hand:  
+- The dataset as a list of strokes, each stroke being a list of points (already simplified)  
+- The user input, as a list of strokes, each stroke being a list of points (already simplified)
+
+To understand the DTW algorithm, we must first understand how a naïve implementation would work.
+
+## Naïve Implementation
+
+A first step could be to compare each recorded point in order. But in practice, this doesn't work because user strokes differ too much from the dataset.
+
+Suppose you want to compare two strokes point-by-point in order:
+
+<center>
+<Image src="/pic/handwritten-without-ml/naive-ordered.svg" alt="Naïve handwritting comparison in order, showing offset in the strokes" width="550" height="554" />
+</center>
+
+We now have two problems:
+- Some points can't be compared, and skipping them may reduce recognition quality.
+- There's an offset in comparison; points are matched suboptimally.
+
+After, you may swiftly try to implement an algorithm comparing each point with its closest neightbor:
+
+<center>
+<Image src="/pic/handwritten-without-ml/naive-distance.svg" alt="Naïve handwritting comparison by distance, showing a skipped point" width="550" height="554" />
+</center>
+
+While promising, this method can degrade quickly in quality, as some points may be skipped. Also, comparing A → B may not yield the same result as B → A.
+
+To add insult to injury, distance comparison may lead to this:
+
+<center>
+<Image src="/pic/handwritten-without-ml/naive-distance-worse-case.svg" alt="Naïve handwritting comparison by distance, with a small line and a big line, the big line has one point being entirely skipped leading to bad comparison" width="550" height="554" />
+</center>
+
+Clearly, simplifying a line to a single point causes serious issues.
+
+# The DTW Algorithm
+
+We now have two requirements:
+- Compare every point to another at least once
+- Use a method that doesn’t depend on the number of points
+
+The DTW algorithm solves both.
+
+DTW (Dynamic Time Warping) will be explained in two parts: what it does, and how it is implemented.  
+Note that it is tough to grasp DTW by code alone.
+
+## What Does DTW Do?
+
+DTW is complete when all points have been compared.
+
+Initially, you have two indices, one for stroke A and one for stroke B, both starting at index 0.
+
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-initial.svg" alt="The DTW initial step, comparing two strokes first point" width="550" height="554" />
+</center>
+
+Then you have three cases:
+- Case 1: compare, then move only point A
+- Case 2: compare, then move only point B
+- Case 3: compare, then move both points
+
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-comparison-select.svg" alt="The DTW comparison step, comparing two strokes points and having 3 cases" width="550" height="554" />
+</center>
+
+Each comparison adds a distance to the total weight. This process is repeated recursively until both indices reach the end.
+
+The algorithm aims to produce the path with the smallest total weight, which becomes the "distance" between the two strokes.
+
+```python
+def dtw(strokeA, strokeB, indiceA, indiceB):
+    dist = distance(strokeA[indiceA], strokeB[indiceB])  # add to total weight
+
+    if indiceA == len(strokeA) and indiceB == len(strokeB):  # can't advance further
+        return dist
+
+    shortest_dist = math.inf
+
+    # case 1: move only point A
+    if indiceA < len(strokeA):
+        shortest_dist = min(shortest_dist, dtw(strokeA, strokeB, indiceA + 1, indiceB))
+    
+    # case 2: move only point B
+    if indiceB < len(strokeB):
+        shortest_dist = min(shortest_dist, dtw(strokeA, strokeB, indiceA, indiceB + 1))
+    
+    # case 3: move both points
+    if indiceA < len(strokeA) and indiceB < len(strokeB):
+        shortest_dist = min(shortest_dist, dtw(strokeA, strokeB, indiceA + 1, indiceB + 1))
+
+    return shortest_dist + dist
+```
+
+In the end, it may produce something like this: 
+
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-comparison-final.svg" alt="The DTW final step, comparing two strokes" width="350" height="554" />
+</center>
+
+Here: every point are compared.
+
+While this is *an approach* to implement the DTW, it is not excatly how it is correctly implemented.
+
+First, in our case, we repeat a lot of information. For instance, if we have a same path at the end but only a small difference 
+at the start, we recompute the point distance multiple time, which loose a lot of compute. 
+
+To avoid doing a lot of unecessary comparison we must store each distance.
+
+
+
+# DTW Matrix
+
+To optimize, we store previously computed values in a matrix:
+
+The DTW matrix is a 2D matrix that will store progressively the distance between each point of stroke A and stroke B.
+
+
+
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-matrix.svg" alt="The DTW matrix before being filled" width="350" height="554" />
+</center>
+
+It will compute the accumulated distance for each point, then the last point will be the total distance between the two strokes.
+
+> In theory, if you need the specific path taken to reach the last point, you need to reconstruct the path by going back from the last point to the first point.
+> But as far as we are concerned, we only need the distance, so we will not reconstruct the path.
+
+Firstly, we will start at the top left corner of the matrix, and progressively seek the shortest path to the bottom right corner of the matrix.
+
+We construct the accumulated distance matrix by filling it progressively in reverse order. 
+Meaning that for each couple of point (i, j) we will do: 
+
+$
+M[i, j] = \text{distance}(A[i], B[j]) + \min(M[i-1, j], M[i, j-1], M[i-1, j-1])
+$
+
+
+Meaning that for each point (i,j), we take the minimal path:
+- case 1: either from the left, meaning only increasing the point in path B. 
+- case 2: from the top meaning only increasing the point in path A 
+- case 3: or from the top left, meaning increasing both point in path A and B 
+
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-matrix-algo.svg" alt="The DTW matrix step of comparing two strokes" width="350" height="554" />
+</center>
+
+Ultimately, we add the euclidian distance between the two points A[i] and B[j] to the minimal path.
+
+We can consider point being outside the matrix as having a distance of *infinity*. Or not compute them at all.
+
+Let's recap: 
+- The matrix is a way to compute the DTW recursivly by avoiding recomputing the same path multiple time 
+- The matrix is constructed from the top left to the bottom right, and the last cell will hold the optimal path
+- For each cell, we choose the optimal path like the old algorithm, and choose the lowest producing path 
+    - we take 3 choice of either advancing only in the first stroke, 
+    - either in the second one, 
+    - or in both
+- Take the next cell and repeat
+
+Eventually, the matrix will generate a minimal path that will be the distance between the two strokes.
+The path represents a set of comparisons between the two strokes, and the last cell will be the total distance.
+
+As an example, let's have two different matrix paths for the same two strokes:
+
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-matrix-algo-sample.svg" alt="The DTW matrix complete path when comparing two strokes, with two sample" width="350" height="554" />
+</center>
+
+
+
+
+It's the same algorithm as the recursive one, just being stored in a matrix and doing it in a wiser order. 
+
+In code, it could be implement in this way: 
+```python
+def dtw_distance_matrix(pathA, pathB) -> (float):
+    # fill the cost matrix with 0
+    cost_matrix = [[0] * len(pathB) for _ in range(len(pathA))]
+    
+    # Initialize (0,0) with the distance 
+    cost_matrix[0][0] = dist(pathA[0], pathB[0])
+    
+    # We can't go up, or up left as we are in the first row, so only consider path going left
+    # First row (i = 0)
+    for j in range(1, len(pathB)):
+        cost_matrix[0][j] = cost_matrix[0][j-1] + dist(pathA[0], pathB[j])
+
+    # We can't go left, or up left as we are in the first column, so only consider path going up
+    # First column (j = 0)
+    for i in range(1, len(pathA)):
+        cost_matrix[i][0] = cost_matrix[i-1][0] + dist(pathA[i], pathB[0])
+
+    # Populate the remainder of the matrix
+    for i in range(1, len(pathA)):
+        for j in range(1, len(pathB)):
+            dist = dist(pathA[i], pathB[j])
+            # note the format used is [Y,X]
+            prev_min = min(
+                cost_matrix[i-1][ j],    # CASE 2 
+                cost_matrix[i][ j-1],    # CASE 1 
+                cost_matrix[i-1][ j-1]   # CASE 3 
+            )
+            cost_matrix[i][ j] = dist + prev_min
+
+    # The DTW distance is the bottom‑right element
+    dtw_dist = cost_matrix[n-1][ m-1]
+    return dtw_dist
+```
+
+Now you have a fully working DTW ! 
+
+
+# DTW Optimizations 
+
+You can further refine the DTW by avoiding statistically unprobable solution.
+
+It has been found that the extreme path are generally not the best path, you can limit the search space by using a window.
+
+As an illustration: 
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-matrix-inefficient.svg" alt="The DTW matrix with two path: one being inefficient passing through the border, and one passing through the diagonal" width="450" height="554" />
+</center>
+
+To create a window, you can use the Sakoe-Chiba band, which is a band around the diagonal of the matrix. 
+<center>
+<Image src="/pic/handwritten-without-ml/dtw-matrix-window-shiba.svg" alt="The DTW matrix window, it is only allowing the diagonal band" width="450" height="554" />
+</center>
+
+Everytime we try to query a point outside the window, we can just ignore it and set the distance to infinity.
+
+In code, it could be implemented like this: 
+
+
+```python
+def dtw_distance_matrix(pathA, pathB, window):
+    n, m = len(pathA), len(pathB)
+    cost_matrix = [[float('inf') for _ in range(len(pathB))] for _ in range(len(pathA))]
+
+    cost_matrix[0][0] = dist(pathA[0], pathB[0])
+
+    for j in range(1, len(pathB)):
+        if window[0][j]:
+            cost_matrix[0][j] = cost_matrix[0][j - 1] + dist(pathA[0], pathB[j])
+
+    for i in range(1, len(pathA)):
+        if window[i][0]:
+            cost_matrix[i][0] = cost_matrix[i - 1][0] + dist(pathA[i], pathB[0])
+
+    for i in range(1, len(pathA)):
+        for j in range(1, len(pathB)):
+            if window[i][j]:
+                d = dist(pathA[i], pathB[j])
+                prev_min = min(
+                    cost_matrix[i - 1][j], # CASE 2 
+                    cost_matrix[i][j - 1], # CASE 1
+                    cost_matrix[i - 1][j - 1] # CASE 3
+                )
+                cost_matrix[i][j] = d + prev_min
+
+    return cost_matrix[-1][-1]
+```
+
+Inside [ASAPP](https://github.com/lylykin/asapp/blob/main/dtw.py) we implemented the window creation like this: 
+
+
+```python
+def create_window(col, row, radius):
+    if col <= 1 or row <= 1:
+        return [[1 for _ in range(row)] for _ in range(col)]
+
+    window = [[0 for _ in range(row)] for _ in range(col)]
+    for i in range(col):
+        for j in range(row):
+            if abs(i * (row / col) - j) <= radius:
+                window[i][j] = 1
+    return window
+```
+
+The radius of a window is the width of the band. A higher radius means higher quality, but slower output, and vice-versa.
+
+# Improving quality 
+
+To further improve the DTW, you can use a better distance function. We were inspired by [this](https://onlinelibrary.wiley.com/doi/10.1155/2018/2404089) paper to include more information in the distance function.
+
+To do that, We included the direction of the stroke and the curvature. Then we used the following distance function: 
+
+
+```python
+def dist(val_1, val_2):
+    return math.sqrt(
+        (val_1.x - val_2.x) ** 2 +
+        (val_1.y - val_2.y) ** 2 +
+        (8 * delta_angle(val_1.theta, val_2.theta)) ** 2
+    ) + (5 * (val_1.curvature - val_2.curvature)) ** 2
+```
+
+# Conclusion
+
+This algorithm can always be improved and fine-tuned. It worked well in our case for complex Japanese kanji, though it required tuning to handle simple characters effectively. The Japanese dataset is a challenging one, but we succeeded.
+
+If you enjoyed this article, feel free to check out the [ASAPP](https://github.com/lylykin/asapp) project!
+
+I hope this helped you understand the Dynamic Time Warping algorithm.
+
+# Sources / Further Reading
+- [Using Dynamic Time Warping for intuitive handwriting recognition](https://www.researchgate.net/publication/228701177_Using_Dynamic_Time_Warping_for_intuitive_handwriting_recognition)
+- [Computing Continuous Dynamic Time Warping of Time Series in Polynomial Time](https://arxiv.org/pdf/2203.04531)
+- [Early Abandoning PrunedDTW and its application to similarity search](https://arxiv.org/pdf/2010.05371)
+- [Toward accurate dynamic time warping in linear time and space](https://www.researchgate.net/publication/220571483_Toward_accurate_dynamic_time_warping_in_linear_time_and_space)
+- [An introduction to Dynamic Time Warping](https://rtavenar.github.io/blog/dtw.html)
+- [Modified Dynamic Time Warping based on Direction Similarity for Fast Gesture Recognition](https://onlinelibrary.wiley.com/doi/10.1155/2018/2404089)
