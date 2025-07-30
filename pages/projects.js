@@ -156,7 +156,8 @@ export default function Projects() {
 
                 <Project title={wingosLogo} image="/pic/wingos-bg.webp" id={3}>
 
-                    <p className="py-2">Another 64 bit (amd64) operating system I wrote from scrarch in C++, it has smp, ext2, basic network, ahci... I stopped working on it for Brutal</p>
+
+                    <p className="py-2">The project is about creating a small hobbyist micro-kernel based operating system that is simple, easy to understand, and fun to work on. It is not meant to be a production-ready micro-kernel, but it doesn't mean that coding should not be taken seriously. Everything should be done with care, and the code should aim to be fast, while being simple and easy to understand.</p>
 
                     <nav className="w-full flex flex-row justify-around py-4">
                         <Mlink href="https://github.com/supercip971/wingos"> Source code </Mlink>

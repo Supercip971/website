@@ -1,0 +1,197 @@
+---
+title: WingOS Milestone 1 - Userspace, Ipc, Spaces, ...
+seoTitle: The WingOS first milestone
+description: The first Wing operating system milestone ! This blog post describes everything added since the last rewrite
+isPublished: true
+publishedOn: "2025-07-30"
+modifiedOn: "2025-07-30"
+layout: Article
+slug: Hello
+socialImage: pic/wingos-m1/banner.png
+---
+
+> Note: the "Milestone" concept is shamelessly stolen from the [Brutal](https://brutal.smnx.sh/articles) blog posts.
+ 
+# Wing operating system first milestone 
+
+After 2 years this milestone is finally finished.
+
+While small, it contains a lot of features and aims to create a barebones microkernel capable of IPC and has a non-empty userspace.
+
+The project is about creating a small hobbyist kernel that is simple, easy to understand, and fun to work on. It is not meant to be a production-ready kernel, but that doesn't mean coding should not be taken seriously. Everything should be done with care, and the code should aim to be fast and secure, while being simple and easy to understand.
+
+## History - Yet another rewrite?
+
+At first, WingOS was a project I wrote more than 5 years ago. During this time, I was a newcomer and had a youthful view of everything.
+As the project grew, my experience grew and I saw everything was broken and, with my new point of view, needed to rewrite everything.
+
+- The first version of the operating system was closed source. It had a user interface (implemented in kernel) and was not fun to program because it was so unstable.
+- The second version of the operating system was open source but quickly rewritten to target a 64-bit architecture. While some parts are ugly, I'm so proud of what I was able to do and I'm still amazed at some of its features.
+- The third and final version is this one. After contributing to Brutal, I wanted to create a microkernel because it was the philosophy that I aimed for.
+
+In the end, I started this rewrite 2 years ago, but at the wrong time, because I was entering my engineering school and was not able to spend a lot of time on this project.
+
+Now, I have finished the first part of my studies (preparatories in France) and I am able to focus everything to make this project grow.
+
+## Rebranding 
+
+<center>
+<Image src="/pic/wingos-m1/logo-old.png" alt="old version of the wingos logo" width="678" height="554" />
+old version of the logo
+</center>
+
+
+First, the old logo was a logo I made 5 years ago, and I wanted to make it more "professional" and "serious", that's why I recreated it.
+
+<center>
+<Image src="/pic/wingos-m1/logo-black.png" alt="New dark mode version of the wingos logo" width="678" height="554" />
+Dark mode version of the logo
+</center>
+
+<center>
+<Image src="/pic/wingos-m1/logo-white.png" alt="New white mode version of the wingos logo" width="678" height="554" />
+White mode version of the logo
+</center>
+
+I may also say that each horizontal line is a scheduling quantum in a scheduling graph, but it may be over-elaborate.
+
+## Features
+
+The first milestone is a small one, but it contains a lot of features that are essential to the operating system.
+
+First, the kernel is a microkernel, which means that contrary to monolithic kernels, its philosophy is to have a small kernel with a lot of userspace services.
+
+Microkernels are minimalist, elegant, and resilient to crashes. Systems based on a microkernel consist of a collection of services running in user space that communicate with each other. If a service crashes, it can be restarted without rebooting the entire machine. Early generations had the drawback of being slower than monolithic kernels. However, this is no longer true today: kernels from the L4 family are in no way inferior to their monolithic counterparts in terms of speed.
+[*](https://devse.wiki/types-de-kernel)
+
+If you want to know more about microkernels, I recommend reading the [OSDEV Article](https://wiki.osdev.org/Microkernel) on the subject.
+
+The kernel is written in C++ and is designed to be simple to understand and easy to work on.
+
+### Current features of the kernel
+
+For now, the kernel is able to:
+- Manage memory
+- Manage processes
+- Manage IPC (Inter Process Communication)
+- Manage userspace spaces (a space is a collection of assets, like a process, an IPC server, a memory region...)
+
+The scheduler implemented supports priority and CPU affinity. It is also designed to support NUMA nodes (with CPU-trees) and SMP (Symmetric Multi-Processing).
+
+## Spaces 
+
+A space in WingOS is a collection of assets with ref counting. It is a way to group assets together and manage them easily.
+A space can contain:
+- Processes
+- IPC servers
+- IPC Connection
+- Physical memory 
+- Virtual memory 
+- Other spaces
+
+It helps to manage each ressource easily, for example, when a process is created, it is added to the current space, and when the space is destroyed, all the assets in the space are destroyed too.
+
+You can also create a new space with mapping and a new process can be executed in this space, having its own memory and IPC servers, or create a new task in your current space when you want to share all your handles and memory with the new task.
+
+You can move or copy assets between spaces, making it easy to share memory and IPC servers between processes.
+
+Each syscall implemented is designed to be able to create asset with a handle belonging to a specific space, meaning that you can only access the assets in your space, or child spaces. 
+
+
+## IPC - Inter Process Communication
+
+The userspace is able to communicate with other processes using IPC, which is a way to send messages between processes.
+
+Note that for now, the IPC is only asynchronous, meaning that you need to wait for a message and the task is not automatically woken up when a message is received, you need to call the `receive` syscall to maybe receive a message.
+### Example of IPC server
+
+
+
+```cpp
+
+auto server = Wingos::Space::self().create_ipc_server(true);
+
+while(true)
+{
+    // accepting new connections
+    auto conn = server.accept();
+    if(!conn.is_error())
+    {
+        log::log$("(server) accepted connection: {}", conn.unwrap()->handle);
+    }
+
+    // receiving messages
+
+    auto received = server.receive();
+
+    if(!received.is_error())
+    {
+        auto msg = received.unwrap();
+        log::log$("(server) received message: {}", msg.received.data[0].data);
+
+        IpcMessage reply = {};
+        reply.data[0].data = 1234;
+        reply.data[0].is_asset = false; // you can share asset like memory, or task, when sending a message, the handle will automatically be copied and changed the the new handle in the receiver space
+
+        server.reply(msg, reply).assert();
+    }
+}
+```
+
+### Example of IPC client
+
+```cpp
+// IPC server 0 is the root server, it will be like a DNS, managing each server and their handles
+auto client = Wingos::Space::self().connect_to_ipc_server(0);
+
+client.wait_for_accept();
+    
+log::log$("(client) connected to server with handle: {}", client.handle);
+    
+IpcMessage message = {};
+message.data[0].data = 69420;
+message.data[0].is_asset = false;
+
+auto sended_message = client.send(message, true);
+auto message_handle = sended_message.unwrap();
+if(!sended_message.is_error())
+{
+    log::log$("(client) message sent with handle: {}", message_handle);
+}
+    
+while (true)
+{
+    auto received = client.receive_reply(message_handle);
+    if (!received.is_error())
+    {
+        log::log$("(client) received message: {}", received.unwrap().data[0].data);
+        break;
+    }
+}
+```
+
+
+
+Like you see in the example above, WingOS tries to manage error handling with the `Result` type, which is a common pattern in Rust and other languages. It allows you to handle errors gracefully without crashing the program. 
+It is explicit instead of using C++ exceptions, which are disabled in WingOS.
+
+# What now ?
+
+While this milestone is a huge step forward, there is still a lot to do. The next steps are:
+- Implementing a DNS like service managing each server and their handles, so you can connect to a server by its name instead of its handle.
+- Implementing a disk driver, so you can read and write files on a disk.
+- Implementing a file system, which is essential for a complete operating system.
+- Implementing an easy way to create Interface between each server (like an IDL programming language)
+
+
+# Conclusion
+
+If you want to contribute or take a look at the code, you can find it on the [WingOS Github repository](https://github.com/Supercip971/WingOS/tree/main).
+
+# Source / Reading further 
+
+- [Osdev article on microkernels](https://wiki.osdev.org/Microkernel)
+- [Devse article on kernel types (french)](https://devse.wiki/types-de-kernel)
+- [Brutal operating system](https://brutal.smnx.sh/)
+- [WingOS Github repository](https://github.com/Supercip971/WingOS/tree/main)
+- [WingOS Discord server](https://discord.gg/WYREEs4WkR)
