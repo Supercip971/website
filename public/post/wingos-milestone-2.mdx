@@ -1,0 +1,166 @@
+---
+title: WingOS Milestone 2 - Filesystem and Disk Driver  
+seoTitle: WingOS Second Milestone  
+description: The second milestone of the Wing operating system! This post details all the major features and developments since the previous milestone.  
+isPublished: true  
+publishedOn: "2025-10-27"  
+modifiedOn: "2025-10-27"  
+layout: Article  
+slug: wingos-milestone-2  
+socialImage: pic/wingos-m2/banner.png  
+---
+
+# WingOS Second Milestone
+
+After several months of development, the second milestone of WingOS is now complete.  
+This release introduces a significant set of features focused on the **filesystem** and **disk driver** subsystems.
+
+The primary objective of this milestone was to implement a foundational filesystem and disk driver to enable basic file read/write operations on a physical disk. This functionality establishes the groundwork for developing a more advanced userspace and running complex applications in future milestones.
+
+The next major goal for the project is to successfully **run DOOM** on WingOS.
+
+WingOS remains a **microkernel-based operating system**, meaning that many essential components-such as the init system, disk driver, EXT2 implementation, and VFS-operate entirely in **userspace**.
+
+## Init System and Dependencies
+
+To properly initialize the disk and filesystem services, WingOS required a dependency-aware initialization system.  
+I developed a lightweight **init loader** capable of launching services in the correct order based on their declared dependencies.
+
+Three categories of dependencies are currently supported:
+
+- **Hardware dependencies:** The service will not start unless the required hardware is detected (e.g., a PCI NVMe controller for the NVMe driver).
+- **Service dependencies:** The service will not start until another specified service has successfully launched (e.g., the ext2 service depends on the vfs service).
+- **Boot dependencies:** The service waits for a specific boot stage before starting (e.g., the `@fs` stage, which is reached when all filesystems are mounted).
+
+The init system starts services **in parallel whenever possible** to reduce boot times.  
+Configuration is defined via JSON files, as shown below:
+
+```json
+{
+    "modules": [
+        {
+            "name": "vfs-wingos",
+            "path": "/bin/vfs-wingos"
+        },
+        {
+            "name": "hello-world",
+            "path": "/bin/hello-wingos",
+            "requires": ["@fs"]
+        },
+        {
+            "name": "ext4-wingos",
+            "path": "/bin/ext4-wingos",
+            "requires": ["vfs"]
+        }
+    ],
+    "drivers": [
+        {
+            "name": "nvme-wingos",
+            "path": "/bin/nvme-wingos",
+            "pci": {
+                "class-code": 1,
+                "subclass-code": 8
+            },
+            "requires": ["vfs"]
+        }
+    ]
+}
+```
+
+## Filesystem Implementation
+
+The highlight of this milestone is the implementation of a fully functional **Virtual File System (VFS)** and **disk driver**.
+The VFS layer, implemented in userspace, allows multiple filesystem types to coexist and be accessed through a unified API. Currently, only **EXT2** is supported, but the design allows for straightforward integration of additional filesystems.
+
+The EXT2 implementation supports **file read/write operations** and **directory listing**.
+The entire filesystem stack operates on top of a **userspace NVMe driver**, which communicates with the controller via PCI and handles all read/write requests.
+
+<center>
+<Image src="/pic/wingos-m2/screen.png" alt="Hello-world app reading a file from disk" width="678" height="554" />
+Logs of the hello-world application reading a file from the EXT2 filesystem.
+</center>
+
+### Filesystem Loading Process
+
+The filesystem initialization and mounting process proceeds as follows:
+
+<center>
+<Image src="/pic/wingos-m2/disk-mount.svg" alt="Disk mount process in WingOS" width="678" height="554" />
+Process of mounting a disk and initializing a filesystem in WingOS.
+</center>
+
+- 1: The init system starts and launches the VFS service.
+- 2: The NVMe and EXT2 drivers are started.
+- 3: The NVMe driver detects and initializes the controller, registering the disk with the VFS.
+- 4: The EXT2 service initializes and registers itself with the VFS.
+- 5: The VFS scans each partition and queries the EXT2 service to verify validity.
+- 6: The EXT2 filesystem mounts valid partitions and exposes them to VFS.
+- 7:The VFS automatically mounts the first EXT2 partition as the root filesystem (`/`) and forwards all file access requests appropriately.
+
+Future plans include adding support for additional filesystems and implementing new disk drivers (**SATA**, etc.).
+
+Partition management (GPT parsing) will also be split into a dedicated service, allowing the VFS to mount subdisks directly.
+
+
+## Filesystem Access Model
+
+In WingOS, file operations are **relative**, not absolute.
+Instead of opening `/etc/passwd` directly, an application would:
+
+- 1: Open the root filesystem (`/`)
+- 2: Obtain a handle to the `etc` directory, then open it
+- 3: Then open the `passwd` file within it
+
+Each file or directory access creates a new connection to a dedicated server managing that object (each server correspond to a unique file).
+
+File operations -such as read, write, attribute queries, or directory listing- are performed through **inter-process communication (IPC)** with these file servers.
+
+Applications can be sandboxed easily because directory traversal is restricted: access to `..` (parent directories) can be disallowed. This model is inspired by the [Fuchsia OS filesystem model](https://fuchsia.dev/fuchsia-src/concepts/filesystems/dotdot).
+
+All filesystem interactions are mediated by the **VFS service**, which forwards requests to the appropriate filesystem service.
+For instance:
+
+<center>
+<Image src="/pic/wingos-m2/disk-usage.svg" alt="Disk usage for opening root directory" width="678" height="554" />
+Sequence of operations for opening the root directory (‘/’) in WingOS.
+</center>
+
+When an application requests access to `/`, the VFS forwards the request to the EXT2 service, which reads the root inode and returns a handle. This handle is then passed back through the VFS to the requesting application, provided that access permissions allow it.
+
+> Note: Remember that in this case, a handle is a server endpoint that you can do IPC with to perform operations on the file.
+
+To maximize performance, WingOS minimizes memory copying: during read/write operations, only **handles** are transferred, and data is mapped once into memory. The buffer is then accessed directly by the ext2 driver, ensuring efficient data transfer with minimal overhead. 
+
+I want to the future implement 0-copy between processes when copying block of memory that are disk-aligned.
+
+## Miscellaneous Improvements
+
+Additional features and refinements introduced in this milestone include:
+
+* A new syscall for querying asset information (e.g., physical memory address and metadata).
+* Numerous kernel and userspace bug fixes.
+* General cleanup and structural improvements to the codebase.
+
+# Conclusion
+
+You can explore or contribute to the project on the [WingOS GitHub repository](https://github.com/Supercip971/WingOS/tree/main).
+
+The next milestone will focus on improving the userspace experience by introducing:
+
+* Mouse and keyboard drivers
+* A framebuffer driver
+* A C standard library port (potentially using **mlibc** ?)
+* And, of course, a **DOOM port** running natively on WingOS.
+
+Stay tuned for more updates!
+
+
+
+# References and Further Reading
+
+* [OSDev Wiki - Microkernel](https://wiki.osdev.org/Microkernel)
+* [Devse - Types de noyaux (French)](https://devse.wiki/types-de-kernel)
+* [Brutal Operating System](https://brutal.smnx.sh/)
+* [WingOS GitHub Repository](https://github.com/Supercip971/WingOS/tree/main)
+* [WingOS Discord Server](https://discord.gg/WYREEs4WkR)
+
