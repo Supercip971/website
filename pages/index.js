@@ -34,7 +34,7 @@ export default function Home() {
                         Hello ! I'm <Handwritten>cyp</Handwritten>.
                     </h1>
                     <h2 className="text-xl text-white">
-                        I'm an 18 year old french developer. On this website you can see my blog or my projects.
+                        I'm a 19 year old french developer. On this website you can see my blog or my projects.
                     </h2>
                     <h3 className="py-8 flex flex-row w-full justify-around">
                         <Mlink href="#about">
