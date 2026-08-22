@@ -85,6 +85,9 @@ const components = {
       ></h3>
     </TitlePart>
   ),
+  hr: (props) => (
+    <hr className="w-48 h-1 mx-auto my-4 bg-slate-800 border-0 rounded-sm md:my-10"></hr>
+  ),
   h4: (props) => (
     <TitlePart>
       <h4
@@ -285,7 +288,7 @@ export default function Post({ front, slug, mdx, source }) {
             <h2 className="pt-4 ">{front.description}</h2>
           </div>
           <div className="flex">
-            <Link href="#content" scroll={"false"}>
+            <Link href="#content" scroll={false}>
               ↓
             </Link>
             <time className="ml-auto" dateTime={front.publishedOn}>

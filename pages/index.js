@@ -59,17 +59,14 @@ export default function Home() {
               <Handwritten>
                 <span className="text-4xl">cyp</span>
               </Handwritten>
-              , a 19-year-old French C/C++ programmer. I focus on low-level
-              programming (kernel/osdev, and lately I've been exploring FPGA
-              development). Sometimes, I also experiment with high-level
+              , a French C/C++ programmer. I focus on low-level
+              programming (kernel/osdev). Sometimes, I also experiment with high-level
               programming (as you can see on this website). Most of my work is
               open source. I've been working on multiple{" "}
               <Mlink href="/projects">projects</Mlink>. You can also check out
-              my <Mlink href="/blog">small blog</Mlink>, which doesn't have much
-              content for now. I'm currently studying at INSA Lyon, so I no
+              my <Mlink href="/blog">small blog</Mlink>. For now, I'm currently studying at INSA Lyon, so I no
               longer have as much time to dedicate to my projects. However, I
-              still try to work on smaller things occasionally, like
-              photography.
+              still try to work on smaller things occasionally.
               <br />
               If you're interested, feel free to reach out:
               <Mlink href="/contact">Contact</Mlink>

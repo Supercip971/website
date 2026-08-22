@@ -27,8 +27,7 @@ export default function PostList({ posts }) {
                         My <span className=" text-sky-500">blog</span>
                     </h1>
                     <h2 className="text-xl">
-                        Sometimes I try to do a blog post, don't expect
-                        something really good, and with a well written english.
+                        Sometimes I love to write about programming, or projects I'm currently working on. 
                     </h2>
                 </div>
             </div>
@@ -49,7 +48,7 @@ export default function PostList({ posts }) {
                             className=" m-auto border overflow-hidden flex  bg-black text-white flex-col max-w-prose mb-8 cursor-pointer"
                             passHref
                         >
-                            <Image src={"/" + front.socialImage} alt="blog post picture" layout="responsive" width={1920} height={1080} />
+                            <Image src={"/" + front.socialImage} alt="blog post picture" width={1920} height={1080} />
                             <div className="flex md:flex-col flex-row flex-wrap">
                                 <h1 className=" text-2xl p-4  bg-black text-white mr-auto  font-extrabold">
                                     {front.title}
