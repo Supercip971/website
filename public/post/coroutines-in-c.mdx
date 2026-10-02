@@ -4,7 +4,7 @@ seoTitle: The implementation of coroutines/fibers in C for Linux.
 description: How to implement coroutines (fibers) in the C programming language for Linux.
 isPublished: true
 publishedOn: "2023-02-11"
-modifiedOn: "2023-02-11"
+modifiedOn: "2026-10-02"
 layout: Article
 slug: Hello
 socialImage: post/fibers.webp
@@ -377,9 +377,15 @@ For loading the `rip` register, we need to push the value of `rip` on the stack,
 ```
 
 ##### Saving the `mxcsr` and `fcw` registers
+
+> Update (2026/10/02): After [@xBZZZZ](https://github.com/Supercip971/website/issues/4#issuecomment-5837442625)'s comment, they pointed out that some languages and libraries do not save these registers / take them into account (like [D](https://github.com/dlang/dmd/blob/5100a7df7e26aa1411ed724d61276730967aa1ca/druntime/src/core/thread/fiber/package.d#L347-L379)).
+> Not saving these registers could break `fesetround` on x86. However, this function is rarely called, and the performance savings from not saving `mxcsr` and `fcw` may be worthwhile for your project.
+> It's up to you whether to save them.
+
+
 That's it, we have now a working switching of context between two fibers !
 
-But hold on, we still have a problem, if you try to use any float value, you may get something wrong.
+But hold on, we still have a problem, if you try to use `fesetround`, or other miscellaneous floating-point functions, you may get something wrong.
 That's because the CPU also needs to save and load the floating point context.
 
 For that, we need to save the `mxcsr` and `fcw` registers.
